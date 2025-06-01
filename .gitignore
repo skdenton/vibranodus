@@ -1,0 +1,16 @@
+.DS_Store
+.idea/
+config.json
+lib/sandbox
+*.log
+views/statsabove.ejs
+views/statsbelow.ejs
+views/statsheader.ejs
+
+# NPM
+node_modules
+node_modules.backup
+npm-debug.log*
+
+# Vagrant
+.vagrant
