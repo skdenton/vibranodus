@@ -45,6 +45,8 @@ var cheerio = require('cheerio')
 var extractor = require('unfluff')
 
 var fs = require('fs')
+const path = require('path')
+const os = require('os')
 
 var gexf = require('gexf');
 
@@ -2316,7 +2318,7 @@ exports.submit = function(req, res, next) {
             }
         })
     } else if (service == 'youtube') {
-        var youtubedl = require('youtube-dl')
+        const youtubedl = require('youtube-dl-exec')
 
         var statements = []
 
@@ -2384,8 +2386,29 @@ exports.submit = function(req, res, next) {
 
                 get_subtitles(ytoptions)
 
+                function downloadSubs(url, opts, cb) {
+                    const tmpFile = path.join(
+                        os.tmpdir(),
+                        `subs-${Date.now()}.vtt`
+                    )
+                    const execOpts = {
+                        skipDownload: true,
+                        subLang: opts.lang,
+                        subFormat: 'vtt',
+                        output: tmpFile,
+                    }
+                    if (opts.auto) {
+                        execOpts.writeAutoSub = true
+                    } else {
+                        execOpts.writeSub = true
+                    }
+                    youtubedl(url, execOpts)
+                        .then(() => cb(null, [tmpFile]))
+                        .catch(cb)
+                }
+
                 function get_subtitles(ytoptions) {
-                    youtubedl.getSubs(url, ytoptions, function(err, files) {
+                    downloadSubs(url, ytoptions, function(err, files) {
                         if (err) {
                             console.log(err)
                             res.error(
