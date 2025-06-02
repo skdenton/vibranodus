@@ -19,7 +19,7 @@ var validate = require('../lib/middleware/validate')
 var options = require('../options')
 var async = require('async')
 
-var neo4jnew = require('neo4j-driver').v1
+const neo4j = require('neo4j-driver')
 
 var uuid = require('node-uuid')
 
@@ -198,9 +198,9 @@ exports.submit = function(req, res, next) {
 
     var entryName = ''
 
-    var neo4jdriver = neo4jnew.driver(
+    var neo4jdriver = neo4j.driver(
         options.neo4jhost,
-        neo4jnew.auth.basic(options.neo4juser, options.neo4jpass)
+        neo4j.auth.basic(options.neo4juser, options.neo4jpass)
     )
 
     // A series of checks before the statement is submitted

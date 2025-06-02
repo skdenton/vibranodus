@@ -86,7 +86,7 @@ InfraNodus is built on
 * jQuery for the front-end
 * Node.Js for the back-end
 * Express Node.Js library;
-* [Node-Neo4J layer](http://github.com/philippkueng/node-neo4j);
+* [neo4j-driver](https://github.com/neo4j/neo4j-javascript-driver);
 * [Textexture](http://textexture.com) algorithm for text network visualization;
 * Open-source code from the people on StackOverflow and Neo4J community;
 
