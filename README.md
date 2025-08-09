@@ -1,17 +1,12 @@
-## InfraNodus is a text-to-network visualization tool, based on Neo4J Graph Database, Node.Js, Sigma.Js, and Graphology.
+## Vibranodus is a revival of an Open Source Project that has dissappeared from the web.
 
-### [www.infranodus.com](https://infranodus.com)
+It uses the magic of vibe coding to rapidly update old modules for InfraNodus, a text-to-network visualization tool, based on Neo4J Graph Database, Node.Js, Sigma.Js, and Graphology.
 
-#### [InfraNodus](https://infranodus.com) is a web app that can represent plain text as a graph. Every word is a node, every co-occurrence is a connection. We build a graph and apply network science algorithms to get insights about the connections in this graph. So you can encode any text or anything you want into a graph using #hashtags and @mentions). InfraNodus will visualize it, so you can analyze it. 
+
+
+#### Vibranodus is a web app that can represent plain text as a graph. Every word is a node, every co-occurrence is a connection. We build a graph and apply network science algorithms to get insights about the connections in this graph. So you can encode any text or anything you want into a graph using #hashtags and @mentions). InfraNodus will visualize it, so you can analyze it. 
 
 ![](/public/images/infranodus-live-editor.gif "InfraNodus Interface")
-
-##
-## Try InfraNodus Online
-
-[www.infranodus.com](http://infranodus.com) - includes the Pro features, such as GPT-3 AI idea generation tool
-
-[Watch a Video Demo](https://www.youtube.com/watch?v=0mIT9Ni5SO4) - a 3-minute introduction
 
 
 ## 
@@ -33,7 +28,7 @@
 ## 
 ## The Science and the Method
 
-InfraNodus is a non-commercial [venture fiction](https://noduslabs.com/research/venture-fiction/) project. Its main objective is to enhance perception and imagination, although it can also solve concrete problems and offer you an efficient way to retain, process, and make sense of information. It can:
+Vibranodus is a non-commercial [venture fiction](https://noduslabs.com/research/venture-fiction/) project. Its main objective is to enhance perception and imagination, although it can also solve concrete problems and offer you an efficient way to retain, process, and make sense of information. It can:
 
 * Help researchers make sense of textual data
 * Help you retain and remember information
