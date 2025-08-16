@@ -6,8 +6,6 @@ It uses the magic of vibe coding to rapidly update old modules for InfraNodus, a
 
 #### Vibranodus is a web app that can represent plain text as a graph. Every word is a node, every co-occurrence is a connection. We build a graph and apply network science algorithms to get insights about the connections in this graph. So you can encode any text or anything you want into a graph using #hashtags and @mentions). InfraNodus will visualize it, so you can analyze it. 
 
-![](/public/images/infranodus-live-editor.gif "InfraNodus Interface")
-
 
 ## 
 ## Features
@@ -90,16 +88,6 @@ InfraNodus is built on
 ##
 ## Installation Guide
 
-If you just want to try out the tool, the best way to do that is to use the [Cloud version of InfraNodus](https://infranodus.com). We only charge €9 towards development and server costs, and it has more capabilities than the open-source version. The cloud version is also connected to multiple AI APIs, such as GPT-3 and BERT sentiment analysis, and can process bigger files faster.  
-
-Note, that due to the limited capacity we cannot provide support for installing the open-source version. However, you can post an Issue to this repository and maybe somebody from the community will be able to respond.
-
-
-### Run on the cloud
-To run InfraNodus on the cloud, go to [www.infranodus.com](https://infranodus.com). 
-
-
-### Run directly on your machine
 To use this software you should install Neo4J 3.3.9 on your local computer (up to 3.5 is supported).
 To install Neo4J on a Mac use homebrew (see [Neo4J instructions here](http://www.neo4j.org/download)) or you can also set up a cloud Neo4J instance on AWS or their own cloud service.
 For settings, check out [How to Set Up Neo4J for InfraNodus](https://github.com/noduslabs/infranodus/wiki/Neo4J-Database-Setup).
