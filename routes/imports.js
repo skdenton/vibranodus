@@ -35,11 +35,11 @@ var Imap = require('imap'),
 
 var Instruments = require('../lib/tools/instruments.js')
 
-var mimelib = require('mimelib')
+const { simpleParser } = require('mailparser')
 
-var phantom = require('phantom')
+const puppeteer = require('puppeteer')
 
-var rp = require('request-promise')
+var axios = require('axios')
 var cheerio = require('cheerio')
 
 var extractor = require('unfluff')
@@ -1036,86 +1036,19 @@ exports.submit = function(req, res, next) {
                 var nummes = box.messages.total - limit
 
                 var f = imap.seq.fetch(box.messages.total + ':' + nummes, {
-                    bodies: ['HEADER.FIELDS (DATE)', 'TEXT'],
+                    bodies: '', // Fetch the entire message
                     struct: true,
                 })
                 f.on('message', function(msg, seqno) {
-                    // console.log('Message #%d', seqno);
-                    var prefix = '(#' + seqno + ') '
                     msg.on('body', function(stream, info) {
-                        if (info.which === 'TEXT') {
-                            // console.log(prefix + 'Body [%s] found, %d total bytes', inspect(info.which), info.size);
-                        }
-                        var buffer = '',
-                            count = 0
-                        stream.on('data', function(chunk) {
-                            count += chunk.length
-                            buffer += chunk.toString('utf8')
-                            if (info.which === 'TEXT') {
-                                // console.log(prefix + 'Body [%s] (%d/%d)', inspect(info.which), count, info.size);
-                            }
-                        })
-
-                        stream.once('end', function() {
-                            // If the message contains text, save it to email variable
-
-                            if (info.which !== 'TEXT') {
-                                console.log(
-                                    prefix + 'Parsed header: %s',
-                                    inspect(Imap.parseHeader(buffer))
-                                )
+                        simpleParser(stream, (err, parsed) => {
+                            if (err) {
+                                console.log(err);
                             } else {
-                                email = buffer
+                                statements.push(parsed.text);
                             }
-                        })
-                    })
-                    msg.once('attributes', function(attrs) {
-                        // Get the charset of the message obtained
-
-                        var charset = attrs.struct[0].params.charset
-                        var enc = attrs.struct[0].encoding
-
-                        // Is the main encoding base64 - prioritize
-                        if (enc == 'BASE64') {
-                            encoding = 'base64'
-                        }
-                        // Another one – then it'll be that one
-                        else {
-                            encoding = charset
-                            sencoding = enc
-                        }
-                    })
-                    msg.once('end', function() {
-                        // The statement is empty
-                        var statement = ''
-
-                        // If it's base64 convert it to utf8
-
-                        if (encoding == 'base64') {
-                            statement = new Buffer(email, 'base64').toString(
-                                'utf8'
-                            )
-                        }
-
-                        // otherwise it might have weird characters, so convert it accordingly
-                        else if (sencoding == 'QUOTED-PRINTABLE') {
-                            statement = mimelib.decodeQuotedPrintable(email)
-                        }
-                        // otherwise it must be utf-8 for real, so keep it that way
-                        else {
-                            statement = email
-                        }
-
-                        // replace all html with spaces and <br> with \n
-
-                        statement = Instruments.cleanHtml(statement)
-
-                        // add the cleaned statement to array
-
-                        statements.push(statement)
-
-                        // console.log(prefix + 'Body [%s] Finished', inspect(info.which));
-                    })
+                        });
+                    });
                 })
                 f.once('error', function(err) {
                     console.log('Fetch error: ' + err)
@@ -1234,205 +1167,133 @@ exports.submit = function(req, res, next) {
             }
         })
 
-        function submitRelations(req, res, searchQuery) {
-            phantom.create(function(ph) {
-                ph.createPage(function(page) {
-                    page.set(
-                        'settings.userAgent',
-                        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.89 Safari/537.1'
+        async function submitRelations(req, res, searchQuery) {
+            const browser = await puppeteer.launch();
+            const page = await browser.newPage();
+            await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.89 Safari/537.1');
+            await page.goto('http://www.google.com/ncr');
+            console.log('opened google NCR');
+
+            const title = await page.title();
+            console.log('Page title is ' + title);
+
+            await page.goto('https://www.google.com/search?gws_rd=ssl&site=&source=hp&q=' + searchQuery);
+            console.log('opened google Search Results');
+
+            const bodyHandle = await page.$('body');
+            const html = await page.evaluate(body => body.innerHTML, bodyHandle);
+            await bodyHandle.dispose();
+
+            var truncresult = html.substr(
+                html.indexOf(
+                    'also search for'
+                )
+            )
+
+            // Load result in Cheerio
+            var $ = cheerio.load(
+                truncresult
+            )
+
+            // Get the link to more results
+            var expandedurl = $(
+                '._Yqb'
+            ).attr('href')
+
+            await page.goto('https://www.google.com' + expandedurl);
+            console.log('opened connections page');
+
+            const bodyHandle2 = await page.$('body');
+            const html2 = await page.evaluate(body => body.innerHTML, bodyHandle2);
+            var $ = cheerio.load(
+                html2
+            )
+
+            searchQuery = searchQuery.replace(
+                /\./g,
+                ''
+            )
+
+            searchQuery = searchQuery.replace(
+                /\,/g,
+                ''
+            )
+
+            if (
+                $(
+                    '.kltat'
+                )
+                    .length <
+                graphconnections
+            ) {
+                graphconnections = $(
+                    '.kltat'
+                )
+                    .length
+            }
+
+            $(
+                '.kltat'
+            ).each(
+                function(
+                    index
+                ) {
+                    var link = $(
+                        this
                     )
-                    page.open('http://www.google.com/ncr', function(status) {
-                        console.log('opened google NCR ', status)
+                    var text = link.text()
 
-                        if (status == 'fail') {
-                            res.error(
-                                'Something went wrong getting the results you need.'
-                            )
-                            res.redirect('back')
-                        }
+                    text = text.replace(
+                        /\./g,
+                        ''
+                    )
 
-                        page.evaluate(
-                            function() {
-                                return document.title
-                            },
-                            function(result) {
-                                console.log('Page title is ' + result)
-                                page.open(
-                                    'https://www.google.com/search?gws_rd=ssl&site=&source=hp&q=' +
-                                        searchQuery,
-                                    function(status) {
-                                        console.log(
-                                            'opened google Search Results ',
-                                            status
-                                        )
-                                        if (status == 'fail') {
-                                            res.error(
-                                                'Something went wrong opening search results. Maybe try again?'
-                                            )
-                                            res.redirect('back')
-                                        }
-                                        setTimeout(function() {
-                                            page.evaluate(
-                                                function() {
-                                                    return document.body
-                                                        .innerHTML
-                                                },
-                                                function(result) {
-                                                    // Get the first search results page but only from also search for... sentence
-                                                    setTimeout(function() {
-                                                        var truncresult = result.substr(
-                                                            result.indexOf(
-                                                                'also search for'
-                                                            )
-                                                        )
+                    text = text.replace(
+                        /\,/g,
+                        ''
+                    )
 
-                                                        // Load result in Cheerio
-                                                        var $ = cheerio.load(
-                                                            truncresult
-                                                        )
-
-                                                        // Get the link to more results
-                                                        var expandedurl = $(
-                                                            '._Yqb'
-                                                        ).attr('href')
-
-                                                        // Open that link
-
-                                                        page.open(
-                                                            'https://www.google.com' +
-                                                                expandedurl,
-                                                            function(status) {
-                                                                console.log(
-                                                                    'opened connections page ',
-                                                                    status
-                                                                )
-                                                                if (
-                                                                    status ==
-                                                                    'fail'
-                                                                ) {
-                                                                    res.error(
-                                                                        'Something went wrong importing connections. Maybe try again?'
-                                                                    )
-                                                                    res.redirect(
-                                                                        'back'
-                                                                    )
-                                                                }
-                                                                page.evaluate(
-                                                                    function() {
-                                                                        return document
-                                                                            .body
-                                                                            .innerHTML
-                                                                    },
-                                                                    function(
-                                                                        result
-                                                                    ) {
-                                                                        var $ = cheerio.load(
-                                                                            result
-                                                                        )
-
-                                                                        searchQuery = searchQuery.replace(
-                                                                            /\./g,
-                                                                            ''
-                                                                        )
-
-                                                                        searchQuery = searchQuery.replace(
-                                                                            /\,/g,
-                                                                            ''
-                                                                        )
-
-                                                                        if (
-                                                                            $(
-                                                                                '.kltat'
-                                                                            )
-                                                                                .length <
-                                                                            graphconnections
-                                                                        ) {
-                                                                            graphconnections = $(
-                                                                                '.kltat'
-                                                                            )
-                                                                                .length
-                                                                        }
-
-                                                                        $(
-                                                                            '.kltat'
-                                                                        ).each(
-                                                                            function(
-                                                                                index
-                                                                            ) {
-                                                                                var link = $(
-                                                                                    this
-                                                                                )
-                                                                                var text = link.text()
-
-                                                                                text = text.replace(
-                                                                                    /\./g,
-                                                                                    ''
-                                                                                )
-
-                                                                                text = text.replace(
-                                                                                    /\,/g,
-                                                                                    ''
-                                                                                )
-
-                                                                                var statement =
-                                                                                    'people who search for #' +
-                                                                                    searchQuery.replace(
-                                                                                        / /g,
-                                                                                        '_'
-                                                                                    ) +
-                                                                                    ' also search for #' +
-                                                                                    text.replace(
-                                                                                        / /g,
-                                                                                        '_'
-                                                                                    )
-
-                                                                                req.body.entry.body = statement
-
-                                                                                entries.submit(
-                                                                                    req,
-                                                                                    res
-                                                                                )
-
-                                                                                if (
-                                                                                    index ==
-                                                                                    graphconnections -
-                                                                                        1
-                                                                                ) {
-                                                                                    ph.exit()
-                                                                                    res.error(
-                                                                                        'Importing connections... Reload this page in a few seconds.'
-                                                                                    )
-                                                                                    res.redirect(
-                                                                                        res
-                                                                                            .locals
-                                                                                            .user
-                                                                                            .name +
-                                                                                            '/' +
-                                                                                            default_context +
-                                                                                            '/edit'
-                                                                                    )
-                                                                                    return false
-                                                                                }
-                                                                            }
-                                                                        )
-                                                                    }
-                                                                )
-                                                            }
-                                                        )
-                                                    }, 1000)
-                                                },
-                                                1000
-                                            )
-                                        })
-
-                                        // end of eval
-                                    }
-                                )
-                            }
+                    var statement =
+                        'people who search for #' +
+                        searchQuery.replace(
+                            / /g,
+                            '_'
+                        ) +
+                        ' also search for #' +
+                        text.replace(
+                            / /g,
+                            '_'
                         )
-                    })
-                })
-            })
+
+                    req.body.entry.body = statement
+
+                    entries.submit(
+                        req,
+                        res
+                    )
+
+                    if (
+                        index ==
+                        graphconnections -
+                            1
+                    ) {
+                        browser.close();
+                        res.error(
+                            'Importing connections... Reload this page in a few seconds.'
+                        )
+                        res.redirect(
+                            res
+                                .locals
+                                .user
+                                .name +
+                                '/' +
+                                default_context +
+                                '/edit'
+                        )
+                        return false
+                    }
+                }
+            )
         }
     } else if (service == 'file') {
 
@@ -2145,16 +2006,12 @@ exports.submit = function(req, res, next) {
 
         addToContexts.push(importContext)
 
-        var urloptions = {
-            uri: req.body.url,
+        const urloptions = {
             headers: {
                 'User-Agent':
                     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.89 Safari/537.1',
             },
-            transform: function(body) {
-                return cheerio.load(body)
-            },
-        }
+        };
 
         validate.getContextID(user_id, addToContexts, function(result, err) {
             if (err) {
@@ -2169,8 +2026,9 @@ exports.submit = function(req, res, next) {
 
                 var atLeastOne = 0
 
-                rp(urloptions)
-                    .then(function($) {
+                axios.get(req.body.url, urloptions)
+                    .then(function(response) {
+                        const $ = cheerio.load(response.data);
                         if (
                             processfield.length == 0 ||
                             $(processfield).length == 0

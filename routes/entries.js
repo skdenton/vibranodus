@@ -19,9 +19,8 @@ var validate = require('../lib/middleware/validate')
 var options = require('../options')
 var async = require('async')
 
-const neo4j = require('neo4j-driver')
 
-var uuid = require('node-uuid')
+const { v1: uuidv1 } = require('uuid')
 
 exports.list = function(req, res, next) {
     // The one who sees the statements (hello Tengo @1Q84 #Murakami)
@@ -198,10 +197,7 @@ exports.submit = function(req, res, next) {
 
     var entryName = ''
 
-    var neo4jdriver = neo4j.driver(
-        options.neo4jhost,
-        neo4j.auth.basic(options.neo4juser, options.neo4jpass)
-    )
+    var neo4jdriver = require('../lib/db/neo4jClient').driver;
 
     // A series of checks before the statement is submitted
     async.waterfall(
@@ -274,7 +270,7 @@ exports.submit = function(req, res, next) {
                     } else {
                         var statementName = ''
                         var newtimestamp = timestamp + s * 2
-                        var st_uid = uuid.v1()
+                        var st_uid = uuidv1()
 
                                            
                         if (hashtags) {

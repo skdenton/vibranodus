@@ -74,7 +74,12 @@ var importGoogle = require('./routes/importgoogle')
 var app = express()
 
 var server = http.Server(app)
-var io = require('socket.io')(server)
+var io = require('socket.io')(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+    },
+})
 
 app.set('port', process.env.PORT || 3000)
 app.set('views',  __dirname + '/views')
@@ -323,12 +328,11 @@ io.on('connection', function(socket) {
         console.log('user disconnected')
 
         // let's count how many people are left in a room
-        var room = io.sockets.adapter.rooms[socket.room]
-        var people_remaining = 1
+        const room = io.sockets.adapter.rooms.get(socket.room);
+        let people_remaining = 1;
 
-        // TODO that shouldn't be called if not needed
-        if (room != undefined) {
-            people_remaining = room.length
+        if (room) {
+            people_remaining = room.size;
         }
 
         console.log('users left')
