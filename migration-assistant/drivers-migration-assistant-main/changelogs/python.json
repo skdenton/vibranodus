@@ -1,0 +1,581 @@
+[
+  {
+    "identifier": "last_bookmark",
+    "msg": "`Session.last_bookmark()` is deprecated in favor of `Session.last_bookmarks()`. The logic is similar, but the new method returns `neo4j.Bookmarks` instead of `str`.",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/api.html#neo4j.Session.last_bookmarks",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^last_bookmark$",
+        "re_pattern": "\\blast_bookmark\\b",
+        "ts_type": "method"
+      }
+    ]
+  },
+  {
+    "identifier": "is_fatal_during_discovery",
+    "msg": "`Neo4jError.is_fatal_during_discovery()` is deprecated and will be removed without replacement.",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/api.html#neo4j.exceptions.Neo4jError",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^is_fatal_during_discovery$",
+        "ts_type": "method",
+        "re_pattern": "\\bis_fatal_during_discovery\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "invalidates_all_connections",
+    "msg": "`Neo4jError.invalidates_all_connections()` is deprecated and will be removed without replacement.",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/api.html#neo4j.exceptions.Neo4jError",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^invalidates_all_connections$",
+        "ts_type": "method",
+        "re_pattern": "\\binvalidates_all_connections\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "hydrate",
+    "msg": "`Neo4jError.hydrate()` is deprecated and will be removed without replacement. It's internal and should not be used by client code.",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/api.html#neo4j.exceptions.Neo4jError",
+    "deprecated": "5.27",
+    "patterns": [
+      {
+        "ts_pattern": "^hydrate$",
+        "ts_type": "method",
+        "re_pattern": "\\bhydrate\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "from_ticks_ns",
+    "msg": "`neo4j.time.Time.from_ticks_ns()` has been renamed to `neo4j.time.Time.from_ticks()`.",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/types/temporal.html#neo4j.time.Time.from_ticks",
+    "removed": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^from_ticks_ns$",
+        "ts_type": "method",
+        "re_pattern": "\\bfrom_ticks_ns\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "ticks_ns",
+    "msg": "`neo4j.time.Time.ticks_ns` has been renamed to `neo4j.time.Time.ticks`.",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/types/temporal.html#neo4j.time.Time.ticks",
+    "removed": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^ticks_ns$",
+        "ts_type": "property",
+        "re_pattern": "\\bticks_ns\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "id",
+    "msg": "`Node.id` and `Relationship.id` are deprecated in favor of `Node.element_id` and `Relationship.element_id`. Old identifiers were integers, wereas new elementIds are strings. This also affects `Graph` objects as indexing `graph.nodes[...]` and `graph.relationships[...]` with integers is deprecated in favor of indexing them with strings.",
+    "ref": "https://neo4j.com/docs/cypher-manual/current/functions/scalar/#functions-elementid",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^id$",
+        "ts_type": "property",
+        "re_pattern": "\\bid\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "Duration.subseconds",
+    "msg": "`Duration.subseconds` was deprecated in {deprecated} and removed in {removed}. Use `nanoseconds` instead.",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/types/temporal.html#duration",
+    "deprecated": "4.4",
+    "removed": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^subseconds$",
+        "ts_type": "property",
+        "re_pattern": "\\bsubseconds\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "Duration.hours_minutes_seconds",
+    "msg": "`Duration.hours_minutes_seconds` was deprecated in {deprecated} and removed in {removed}. Use `hours_minutes_seconds_nanoseconds` instead.",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/types/temporal.html#duration",
+    "deprecated": "4.4",
+    "removed": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^hours_minutes_seconds$",
+        "ts_type": "property",
+        "re_pattern": "\\bhours_minutes_seconds\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "Time.hour_minute_second",
+    "msg": "`Time.hour_minute_second` and `DateTime.hour_minute_second` was removed in {removed}. Use `hour_minute_second_nanosecond` instead.",
+    "ref": [
+      "https://neo4j.com/docs/api/python-driver/current/types/temporal.html#neo4j.time.Time.hour_minute_second_nanosecond",
+      "https://neo4j.com/docs/api/python-driver/current/types/temporal.html#neo4j.time.DateTime.hour_minute_second_nanosecond"
+    ],
+    "removed": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^hour_minute_second$",
+        "ts_type": "property",
+        "re_pattern": "\\bhour_minute_second\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "Time.second",
+    "msg": "`Time.second` returns an int instead of a float. Use `nanosecond` to get the sub-second information.",
+    "ref": [
+      "https://neo4j.com/docs/api/python-driver/current/types/temporal.html#neo4j.time.Time.second"
+    ],
+    "removed": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^second$",
+        "ts_type": "property",
+        "re_pattern": "\\bsecond\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "ResultSummary.server.version_info",
+    "msg": "`ResultSummary.server.version_info` was deprecated in {deprecated} and removed in {removed}. Use `ResultSummary.server.agent`, `ResultSummary.server.protocol_version`, or call the `dbms.components` Cypher procedure instead.",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/api.html#neo4j.ServerInfo",
+    "deprecated": "4.3",
+    "removed": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^version_info$",
+        "ts_type": "property",
+        "re_pattern": "\\bversion_info\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "neo4j.Bookmark",
+    "msg": "`neo4j.Bookmark` is deprecated in favor of `neo4j.Bookmarks`.",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/api.html#neo4j.Bookmarks",
+    "deprecated": "5.0",
+    "namespace": "neo4j",
+    "patterns": [
+      {
+        "ts_pattern": "^({{namespace}}\\.)?Bookmark$",
+        "ts_type": "type",
+        "re_pattern": "\\b({{namespace}}\\.)?Bookmark\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "import_neo4j.Bookmark",
+    "msg": "Importing `neo4j.Bookmark` and its submodules is deprecated. Everything should be imported directly from `neo4j` instead.",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^neo4j.Bookmark$",
+        "ts_type": "import_from_statement__module_name",
+        "re_pattern": "from\\s*neo4j\\.Bookmark\\s*import"
+      },
+      {
+        "ts_pattern": [
+          "^neo4j$",
+          "^Bookmark$"
+        ],
+        "ts_type": "import_from_statement__name",
+        "ts_uniqueify": "True",
+        "re_pattern": "from\\s*neo4j\\s*import\\s*Bookmark\\b"
+      },
+      {
+        "ts_pattern": "^neo4j.Bookmark$",
+        "ts_type": "import_statement__name",
+        "re_pattern": "import\\s*neo4j\\.Bookmark\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "neo4j.work",
+    "msg": "Importing `neo4j.work` and its submodules is deprecated. Everything should be imported directly from `neo4j` instead.",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^neo4j.work$",
+        "ts_type": "import_from_statement__module_name",
+        "re_pattern": "from\\s*neo4j\\.work\\s*import"
+      },
+      {
+        "ts_pattern": [
+          "^neo4j&",
+          "^work&"
+        ],
+        "ts_type": "import_from_statement__name",
+        "ts_uniqueify": "True",
+        "re_pattern": "from\\s*neo4j\\s*import\\s*work\\b"
+      },
+      {
+        "ts_pattern": "^neo4j.work$",
+        "ts_type": "import_statement__name",
+        "re_pattern": "import\\s*neo4j\\.work\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "neo4j.packstream",
+    "msg": "Importing `neo4j.packstream` is deprecated: it's internal and should not be used by client code.",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^neo4j.packstream$",
+        "ts_type": "import_from_statement__module_name",
+        "re_pattern": "from\\s*neo4j\\.packstream\\s*import"
+      },
+      {
+        "ts_pattern": [
+          "^neo4j$",
+          "^packstream$"
+        ],
+        "ts_type": "import_from_statement__name",
+        "ts_uniqueify": "True",
+        "re_pattern": "from\\s*neo4j\\s*import\\s*packstream\\b"
+      },
+      {
+        "ts_pattern": "^neo4j.packstream$",
+        "ts_type": "import_statement__name",
+        "re_pattern": "import\\s*neo4j\\.packstream\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "neo4j.routing",
+    "msg": "Importing `neo4j.routing` is deprecated: it's internal and should not be used by client code.",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^neo4j.routing$",
+        "ts_type": "import_from_statement__module_name",
+        "re_pattern": "from\\s*neo4j\\.routing\\s*import"
+      },
+      {
+        "ts_pattern": [
+          "^neo4j$",
+          "^routing$"
+        ],
+        "ts_type": "import_from_statement__name",
+        "ts_uniqueify": "True",
+        "re_pattern": "from\\s*neo4j\\s*import\\s*routing\\b"
+      },
+      {
+        "ts_pattern": "^neo4j.routing$",
+        "ts_type": "import_statement__name",
+        "re_pattern": "import\\s*neo4j\\.routing\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "neo4j.config",
+    "msg": "Importing `neo4j.config` is deprecated: it's internal and should not be used by client code.",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^neo4j.config$",
+        "ts_type": "import_statement__name",
+        "re_pattern": "import\\s*neo4j\\.config\\b"
+      },
+      {
+        "ts_pattern": [
+          "^neo4j$",
+          "^config$"
+        ],
+        "ts_type": "import_from_statement__name",
+        "ts_uniqueify": "True",
+        "re_pattern": "from\\s*neo4j\\s*import\\s*config\\b"
+      },
+      {
+        "ts_pattern": "^neo4j.config$",
+        "ts_type": "import_from_statement__module_name",
+        "re_pattern": "from\\s*neo4j\\.config\\s*import"
+      }
+    ]
+  },
+  {
+    "identifier": "neo4j.meta",
+    "msg": "Importing `neo4j.meta` is deprecated: it's internal and should not be used by client code. `ExperimantalWarning` should be imported directly from neo4j. `neo4j.meta.version` is exposed through `neo4j.__version__`.",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^neo4j.meta$",
+        "ts_type": "import_from_statement__module_name",
+        "re_pattern": "from\\s*neo4j\\.meta\\s*import"
+      },
+      {
+        "ts_pattern": [
+          "^neo4j$",
+          "^meta$"
+        ],
+        "ts_type": "import_from_statement__name",
+        "ts_uniqueify": "True",
+        "re_pattern": "from\\s*neo4j\\s*import\\s*meta\\b"
+      },
+      {
+        "ts_pattern": "^neo4j.meta$",
+        "ts_type": "import_statement__name",
+        "re_pattern": "import\\s*neo4j\\.meta\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "neo4j.data",
+    "msg": "Importing `neo4j.data` is deprecated: it's internal and should not be used by client code. `Record` should be imported directly from `neo4j` instead. Functions `neo4j.data.DataHydrator` and `neo4j.data.DataDeydrator` have been removed without replacement.",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": [
+          "^neo4j$",
+          "^data$"
+        ],
+        "ts_type": "import_from_statement__name",
+        "ts_uniqueify": "True",
+        "re_pattern": "from\\s*neo4j\\s*import\\s*data\\b"
+      },
+      {
+        "ts_pattern": "^neo4j.data$",
+        "ts_type": "import_from_statement__module_name",
+        "re_pattern": "from\\s*neo4j\\.data\\s*import"
+      },
+      {
+        "ts_pattern": "^neo4j.data$",
+        "ts_type": "import_statement__name",
+        "re_pattern": "import\\s*neo4j\\.data\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "neo4j.time",
+    "msg": "Importing submodules from `neo4j.time` (`neo4j.time.[arithmetic|clock_implementations|hydration|metaclasses]`) is deprecated. Everything should be imported from neo4j.time directly.",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^neo4j.time$",
+        "ts_type": "import_from_statement__module_name",
+        "re_pattern": "from\\s*neo4j\\.time\\s*import"
+      },
+      {
+        "ts_pattern": "^neo4j.time..*$",
+        "ts_type": "import_statement__name",
+        "re_pattern": "import\\s*neo4j\\.time\\..*\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "trust",
+    "msg": "The `trust` option is deprecated in favor of `trusted_certificates`.",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/api.html#trusted-certificates-ref",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": [
+          "^driver$",
+          "^trust$"
+        ],
+        "ts_type": "method__kwarg",
+        "ts_uniqueify": "True",
+        "re_pattern": "\\btrust\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "update_routing_table_timeout",
+    "msg": "`update_routing_table_timeout` was removed. Regular keep-alives are sufficient to avoid the driver getting stuck. Further liveness check config options are available but normally not needed (`keep_alive`, `liveness_check_timeout`).",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/api.html#connection-acquisition-timeout-ref",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": [
+          "^driver$",
+          "^update_routing_table_timeout$"
+        ],
+        "ts_type": "method__kwarg",
+        "ts_uniqueify": "True",
+        "re_pattern": "\\bupdate_routing_table_timeout\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "session_connection_timeout",
+    "msg": "`session_connection_timeout` was removed. Regular keep-alives are sufficient to avoid the driver getting stuck. Further liveness check config options are available but normally not needed (`keep_alive`, `liveness_check_timeout`).",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/api.html#connection-acquisition-timeout-ref",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": [
+          "^driver$",
+          "^session_connection_timeout$"
+        ],
+        "ts_type": "method__kwarg",
+        "ts_uniqueify": "True",
+        "re_pattern": "\\bsession_connection_timeout\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "Duration(subseconds)",
+    "msg": "The argument `subseconds` to `neo4j.time.Duration` was deprecated in {deprecated} and removed in {removed}. Use `milliseconds`, `microseconds`, or `nanoseconds` instead.",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/types/temporal.html#duration",
+    "deprecated": "4.4",
+    "removed": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": [
+          "^Duration$",
+          "^subseconds$"
+        ],
+        "ts_type": "function__kwarg",
+        "ts_uniqueify": "True",
+        "re_pattern": "\\bsubseconds\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "Time(second=float)",
+    "msg": "The `neo4j.time.Time` constructor does not accept floats for `second` anymore. Use `nanosecond` instead. Similar remarks hold for the object property `second`.",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/types/temporal.html#neo4j.time.Time",
+    "removed": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": [
+          "^Time$",
+          "^second$",
+          "[0-9]+\\.[0-9]+"
+        ],
+        "ts_type": "function__kwarg__type",
+        "ts_uniqueify": "True",
+        "re_pattern": "second\\b.*?[0-9]+\\.[0-9]+"
+      }
+    ]
+  },
+  {
+    "identifier": "Time.from_ticks(ticks=float)",
+    "msg": "The parameter `ticks` to `neo4j.time.Time.from_ticks()` no longer accepts floats but only ints. It's now 'nanoseconds since midnight' instead of seconds. Similar remarks hold for the object property `ticks`.",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/types/temporal.html#neo4j.time.Time",
+    "removed": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": [
+          "^from_ticks$",
+          "^ticks$",
+          "[0-9]+\\.[0-9]+"
+        ],
+        "ts_type": "method__kwarg__type",
+        "ts_uniqueify": "True",
+        "re_pattern": "ticks\\b.*?[0-9]+\\.[0-9]+"
+      }
+    ]
+  },
+  {
+    "identifier": "Session.read_transaction",
+    "msg": "`Session.read_transaction()` is deprecated in favor of `Session.execute_read()`. The logic is the same, but the argument type changed from `Transaction` to `ManagedTransaction`, and explicit transaction handling methods (`.commit()`, `.rollback()`, `.close()`, `.closed()`) are not available on managed transactions anymore.",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/api.html#neo4j.Session.execute_read",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^read_transaction$",
+        "ts_type": "method",
+        "re_pattern": "\\bread_transaction\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "Session.write_transaction",
+    "msg": "`Session.write_transaction()` is deprecated in favor of `Session.execute_write()`. The logic is the same, but the argument type changed from `Transaction` to `ManagedTransaction`, and explicit transaction handling methods (`.commit()`, `.rollback()`, `.close()`, `.closed()`) are not available on managed transactions anymore.",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/api.html#neo4j.Session.execute_write",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^write_transaction$",
+        "ts_type": "method",
+        "re_pattern": "\\bwrite_transaction\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "neo4j.spatial.(de)hydrate_point",
+    "msg": "`neo4j.spatial.hydrate_point` and `neo4j.spatial.dehydrate_point` are deprecated without replacement: they are internal functions.",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": [
+          "^neo4j\\\\.spatial$",
+          "^(de)?hydrate_point$"
+        ],
+        "ts_type": "import_from_statement__name",
+        "ts_uniqueify": "True",
+        "re_pattern": "from\\s*neo4j\\.spatial\\s*import\\s*(de)?hydrate_point\\b"
+      },
+      {
+        "ts_pattern": "^(de)?hydrate_point$",
+        "ts_type": "function",
+        "re_pattern": "\\b(de)?hydrate_point\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "(Session|Workspace|Pool)?Config",
+    "msg": "`neoj4.Config`, `neoj4.PoolConfig`, `neoj4.SessionConfig`, and `neoj4.WorkspaceConfig` are deprecated without replacement: they are internal classes.",
+    "deprecated": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^(Session|Workspace|Pool)?Config$",
+        "ts_type": "function",
+        "re_pattern": "\\b(Session|Workspace|Pool)?Config\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "Data(Hydrator|Dehydrator)",
+    "msg": "`neo4j.data.DataHydrator` and `neo4j.data.DataDeydrator` have been removed without replacement.",
+    "removed": "5.0",
+    "patterns": [
+      {
+        "ts_pattern": "^Data(Hydrator|Dehydrator)$",
+        "ts_type": "function",
+        "re_pattern": "\\bData(Hydrator|Dehydrator)\\b"
+      }
+    ]
+  },
+  {
+    "identifier": "neo4j.SummaryNotificationPosition",
+    "msg": "`neo4j.SummaryNotificationPosition` is deprecated in favor of `neo4j.SummaryInputPosition`.",
+    "ref": "https://neo4j.com/docs/api/python-driver/current/api.html#neo4j.SummaryInputPosition",
+    "deprecated": "5.22",
+    "patterns": [
+      {
+        "ts_pattern": "^neo4j.SummaryNotificationPosition$",
+        "ts_type": "import_statement__name",
+        "re_pattern": "import\\s*neo4j\\.SummaryNotificationPosition\\b"
+      },
+      {
+        "ts_pattern": [
+          "^neo4j$",
+          "^SummaryNotificationPosition$"
+        ],
+        "ts_type": "import_from_statement__name",
+        "re_pattern": "from\\s*neo4j\\s*import\\s*SummaryNotificationPosition\\b"
+      },
+      {
+        "ts_pattern": "^(neo4j\\.)?SummaryNotificationPosition$",
+        "ts_type": "type",
+        "re_pattern": "\\b(neo4j\\.)?SummaryNotificationPosition\\b"
+      }
+    ]
+  }
+]

@@ -23,7 +23,7 @@ var chargebee = require('chargebee')
 
 var validate = require('../lib/middleware/validate')
 
-var bcrypt = require('bcrypt-nodejs')
+var bcrypt = require('bcrypt')
 
 var config = require('../config.json')
 

@@ -74,7 +74,12 @@ var importGoogle = require('./routes/importgoogle')
 var app = express()
 
 var server = http.Server(app)
-var io = require('socket.io')(server)
+var io = require('socket.io')(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+    },
+})
 
 app.set('port', process.env.PORT || 3000)
 app.set('views',  __dirname + '/views')
@@ -141,24 +146,53 @@ app.post(
 app.post('/context', pass.ensureAuthenticated, validate.changeContextPrivacy())
 
 // Internal API to get nodes and statements for user's own nodes - no need to check user ID
-app.get('/api/user/nodes/:context?', validate.getContextsList(), api.nodes)
-app.get('/api/user/statements/:context?', api.entries)
+app.get('/api/user/nodes', validate.getContextsList(), api.nodes)
+app.get('/api/user/nodes/:context', validate.getContextsList(), api.nodes)
+app.get('/api/user/statements', api.entries)
+app.get('/api/user/statements/:context', api.entries)
 
 // Internal API to get nodes and statements for somebody else's nodes in context
 app.get(
-    '/api/public/nodes/:user?/:context?',
+    '/api/public/nodes',
     validate.getUserID(),
     validate.getContextPrivacy(),
     validate.getContextsList(),
     api.nodes
 )
 app.get(
-    '/api/public/statements/:user?/:context?',
+    '/api/public/nodes/:user',
+    validate.getUserID(),
+    validate.getContextPrivacy(),
+    validate.getContextsList(),
+    api.nodes
+)
+app.get(
+    '/api/public/nodes/:user/:context',
+    validate.getUserID(),
+    validate.getContextPrivacy(),
+    validate.getContextsList(),
+    api.nodes
+)
+app.get(
+    '/api/public/statements',
     validate.getUserID(),
     validate.getContextPrivacy(),
     api.entries
 )
-app.get('/api/:user/lda/:type/:context?', validate.getUserID(), api.entriesLDA)
+app.get(
+    '/api/public/statements/:user',
+    validate.getUserID(),
+    validate.getContextPrivacy(),
+    api.entries
+)
+app.get(
+    '/api/public/statements/:user/:context',
+    validate.getUserID(),
+    validate.getContextPrivacy(),
+    api.entries
+)
+app.get('/api/:user/lda/:type', validate.getUserID(), api.entriesLDA)
+app.get('/api/:user/lda/:type/:context', validate.getUserID(), api.entriesLDA)
 
 // Get connected texts through internal connector function
 app.get(
@@ -174,8 +208,10 @@ app.get(
 )
 
 // External API to get nodes and statements
-app.get('/api2/user/nodes/:context?', api2.nodes)
-app.get('/api2/user/statements/:context?', validate.getUserID(), api2.entries)
+app.get('/api2/user/nodes', api2.nodes)
+app.get('/api2/user/nodes/:context', api2.nodes)
+app.get('/api2/user/statements', validate.getUserID(), api2.entries)
+app.get('/api2/user/statements/:context', validate.getUserID(), api2.entries)
 
 // For posting through API POST parameters:
 // entry[body] is the statement,
@@ -276,14 +312,22 @@ app.get(
     entries.list
 )
 app.get(
-    '/:user/:context?/edit',
+    '/:user/:context/edit',
     pass.ensureAuthenticated,
     validate.getContextPrivacy(),
     validate.getContextsList(),
     entries.list
 )
 app.get(
-    '/:user/:context?',
+    '/:user',
+    pass.checkUser,
+    validate.getUserID(),
+    validate.getContextPrivacy(),
+    validate.getContextsList(),
+    entries.list
+)
+app.get(
+    '/:user/:context',
     pass.checkUser,
     validate.getUserID(),
     validate.getContextPrivacy(),
@@ -323,12 +367,11 @@ io.on('connection', function(socket) {
         console.log('user disconnected')
 
         // let's count how many people are left in a room
-        var room = io.sockets.adapter.rooms[socket.room]
-        var people_remaining = 1
+        const room = io.sockets.adapter.rooms.get(socket.room);
+        let people_remaining = 1;
 
-        // TODO that shouldn't be called if not needed
-        if (room != undefined) {
-            people_remaining = room.length
+        if (room) {
+            people_remaining = room.size;
         }
 
         console.log('users left')
