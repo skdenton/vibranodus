@@ -73,14 +73,14 @@ exports.nodes = function(req, res, next) {
 
     // TODO think of how this is bypassed when API is functional
     // Give this user a variable
-    res.locals.user = req.user
+    res.locals.user = req.user || null
 
     console.log(req.user)
 
     // Do we want to see graphs that include "near" 4-word gap scan?
-    var fullview = res.locals.user.fullview
-    if (fullview != 1) {
-        fullview = null
+    var fullview = null
+    if (res.locals.user && res.locals.user.fullview == 1) {
+        fullview = 1
     }
 
     // Let's define the contexts from URL if exist
@@ -104,13 +104,23 @@ exports.nodes = function(req, res, next) {
         }
     }
 
-    Entry.getNodes(receiver, perceiver, contexts, fullview, function(
-        err,
-        graph
-    ) {
-        if (err) return next(err)
+    var showcontexts = null
+    if (req.query.showcontexts) {
+        showcontexts = req.query.showcontexts
+    }
 
-        // Change the result we obtained into a nice json we need
+    Entry.getNodes(
+        receiver,
+        perceiver,
+        contexts,
+        fullview,
+        showcontexts,
+        res,
+        req,
+        function(err, graph) {
+            if (err) return next(err)
+
+            // Change the result we obtained into a nice json we need
 
         if (req.query.gexf) {
             res.render('entries/nodes', { graph: graph })
@@ -121,5 +131,5 @@ exports.nodes = function(req, res, next) {
                 },
             })
         }
-    })
+    )
 }
