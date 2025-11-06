@@ -21,6 +21,7 @@ RUN apt-get update \
         libfontconfig1 \
         libgcc-s1 \
         libglib2.0-0 \
+        libgbm1 \
         libgtk-3-0 \
         libnspr4 \
         libnss3 \
