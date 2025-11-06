@@ -156,6 +156,16 @@ The repository includes a `docker-compose.yml` that provisions both the applicat
 
 The compose file exposes the web application on http://localhost:3000 and Neo4j on ports 7474 (HTTP) and 7687 (Bolt). Neo4j data and plugin directories are persisted to named Docker volumes by default. If you want to keep configuration files such as `config.json` outside of the container image, uncomment the `config.json` bind mount in `docker-compose.yml` or add your own volume definitions before starting the services.
 
+During start-up the `neo4j-init` one-shot service waits for the database to accept Bolt connections and then runs the Cypher statements in [`neo4j/init.cypher`](neo4j/init.cypher) through `cypher-shell`. The script enables the APOC triggers required by InfraNodus and creates the recommended indexes using Neo4j 5.x syntax. The Neo4j service loads the APOC plugin automatically via the `NEO4JLABS_PLUGINS` environment variable, so the procedures are ready by the time the init job runs.
+
+If you ever reset the Neo4j volumes (for example by running `docker compose down -v`), rerun the initialization after the database starts:
+
+```
+docker compose run --rm neo4j-init
+```
+
+The command reuses the same container image and Cypher script, ensuring the schema stays in sync without having to restart the full stack.
+
 To create an account on your local machine, visit http://localhost:3000/signup?invitation=secretcode - replace `secretcode` with the value of `secrets.invitation` in your `config.json`. 
 
 When you sign up, please, consider creating an account on [www.infranodus.com](http://infranodus.com) to support the development of this tool. Subscribers get fast-track support and help on the technical issues of the installation.

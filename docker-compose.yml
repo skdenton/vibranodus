@@ -10,7 +10,10 @@ services:
       NEO4J_USERNAME: ${NEO4J_USERNAME:-neo4j}
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:-neo4jpassword}
     depends_on:
-      - neo4j
+      neo4j:
+        condition: service_started
+      neo4j-init:
+        condition: service_completed_successfully
     networks:
       - app-network
     # Uncomment the volume below to mount a local config.json at runtime.
@@ -24,9 +27,33 @@ services:
       - "7687:7687"
     environment:
       NEO4J_AUTH: ${NEO4J_USERNAME:-neo4j}/${NEO4J_PASSWORD:-neo4jpassword}
+      NEO4JLABS_PLUGINS: '["apoc"]'
+      NEO4J_apoc_trigger_enabled: "true"
+      NEO4J_dbms_security_procedures_unrestricted: "apoc.*"
     volumes:
       - neo4j_data:/data
       - neo4j_plugins:/plugins
+    networks:
+      - app-network
+
+  neo4j-init:
+    image: neo4j:5.18
+    depends_on:
+      - neo4j
+    environment:
+      NEO4J_USERNAME: ${NEO4J_USERNAME:-neo4j}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:-neo4jpassword}
+    volumes:
+      - ./neo4j/init.cypher:/init/init.cypher:ro
+    command: >-
+      bash -c '
+      until cypher-shell -a bolt://neo4j:7687 -u "$${NEO4J_USERNAME}" -p "$${NEO4J_PASSWORD}" "RETURN 1"; do
+        echo "Waiting for neo4j to accept connections...";
+        sleep 5;
+      done;
+      cypher-shell -a bolt://neo4j:7687 -u "$${NEO4J_USERNAME}" -p "$${NEO4J_PASSWORD}" -f /init/init.cypher
+      '
+    restart: "no"
     networks:
       - app-network
 
