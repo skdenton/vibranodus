@@ -99,9 +99,40 @@ Git clone this project into a folder, then you will also need to have npm Node.J
 
 in the main folder the project to install all the dependencies into `node_modules` folder.
 
-Check out the `config.json.sample` file and edit it to add your own Evernote and Twitter API credentials. 
+Check out the `config.json.sample` file and edit it to add your own Evernote and Twitter API credentials.
 Then rename it to `config.json`.
 Create `statsabove.ejs`, `statsbelow.ejs` and `statsheader.ejs` files in the `/views` folder.
+
+### Configuration
+
+InfraNodus reads its runtime configuration from environment variables first and falls back to `config.json` for any values that are not provided. You can point the application at a custom configuration file by setting the `CONFIG_PATH` environment variable to either an absolute path or a path relative to the project root. If no configuration file is found, the server will continue booting with environment defaults.
+
+**Core application secrets**
+
+- `NEO4J_URI` / `NEO4J_BOLT_URI` – Bolt connection string (for example, `bolt://neo4j:7687`).
+- `NEO4J_BOLT_HOST` – Bolt host without the protocol when you prefer to specify host and port separately.
+- `NEO4J_HOST` – Neo4j HTTP host (defaults to `localhost:7474`).
+- `NEO4J_HTTP_URL` – Fully qualified HTTP URL, including credentials if required. Overrides `NEO4J_HOST` and protocol calculation.
+- `NEO4J_HTTP_PROTOCOL` – Protocol used when building the HTTP URL (defaults to `http`).
+- `NEO4J_USERNAME` / `NEO4J_PASSWORD` – Database credentials.
+- `INVITATION_CODE` – Registration invitation code required on `/signup`.
+- `COOKIE_SECRET` – Secret string used to sign session and cookie data.
+- `SITE_DOMAIN` – Domain included in e-mails such as password recovery messages.
+- `DEFAULT_USER` – Username that is used when a request needs to fall back to a default profile.
+
+**Billing and subscription services**
+
+- `CHARGEBEE_SITE`
+- `CHARGEBEE_API_KEY`
+- `CHARGEBEE_REDIRECT_URL`
+
+**Third-party integrations**
+
+- Twitter: `TWITTER_CONSUMER_KEY`, `TWITTER_CONSUMER_SECRET`, `TWITTER_ACCESS_TOKEN`, `TWITTER_ACCESS_TOKEN_SECRET`.
+- Evernote: `EVERNOTE_CONSUMER_KEY`, `EVERNOTE_CONSUMER_SECRET`, `EVERNOTE_CALLBACK_URL`, `EVERNOTE_SANDBOX` (`true`/`false`).
+- Google Custom Search: `GOOGLE_SEARCH_URL`, `GOOGLE_API_KEY`.
+
+Any keys that are not supplied via the environment will continue to use the values defined in `config.json`, preserving compatibility with existing deployments.
 
 Run the application with
 `node app.js`

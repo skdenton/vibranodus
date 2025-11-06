@@ -1,7 +1,29 @@
 var Evernote = require('evernote')
 
-var config = require('../config.json')
-var callbackUrl = config.evernote.CALLBACK_URL
+var configLoader = require('../lib/config')
+var configData = configLoader.data || {}
+var evernoteConfig = Object.assign({ SANDBOX: true }, configData.evernote || {})
+
+var sandboxEnv = process.env.EVERNOTE_SANDBOX
+var evernoteSandbox
+
+if (sandboxEnv !== undefined) {
+    var normalizedSandbox = sandboxEnv.toLowerCase()
+    evernoteSandbox =
+        normalizedSandbox === 'true' || normalizedSandbox === '1'
+} else {
+    evernoteSandbox = evernoteConfig.SANDBOX
+}
+
+var evernoteConsumerKey =
+    process.env.EVERNOTE_CONSUMER_KEY || evernoteConfig.API_CONSUMER_KEY || ''
+var evernoteConsumerSecret =
+    process.env.EVERNOTE_CONSUMER_SECRET || evernoteConfig.API_CONSUMER_SECRET || ''
+var callbackUrl =
+    process.env.EVERNOTE_CALLBACK_URL || evernoteConfig.CALLBACK_URL || ''
+
+var evernoteConfigured =
+    evernoteConsumerKey && evernoteConsumerSecret && callbackUrl
 
 // home page
 exports.index = function(req, res) {
@@ -9,7 +31,7 @@ exports.index = function(req, res) {
         var token = req.session.oauthAccessToken
         var client = new Evernote.Client({
             token: token,
-            sandbox: config.evernote.SANDBOX,
+            sandbox: evernoteSandbox,
         })
         var noteStore = client.getNoteStore()
         noteStore.listNotebooks(function(err, notebooks) {
@@ -23,10 +45,15 @@ exports.index = function(req, res) {
 
 // OAuth
 exports.oauth = function(req, res) {
+    if (!evernoteConfigured) {
+        res.error('Evernote integration is not configured for this installation.')
+        return res.redirect('/import')
+    }
+
     var client = new Evernote.Client({
-        consumerKey: config.evernote.API_CONSUMER_KEY,
-        consumerSecret: config.evernote.API_CONSUMER_SECRET,
-        sandbox: config.evernote.SANDBOX,
+        consumerKey: evernoteConsumerKey,
+        consumerSecret: evernoteConsumerSecret,
+        sandbox: evernoteSandbox,
     })
 
     client.getRequestToken(callbackUrl, function(
@@ -52,10 +79,15 @@ exports.oauth = function(req, res) {
 
 // OAuth callback
 exports.oauth_callback = function(req, res) {
+    if (!evernoteConfigured) {
+        res.error('Evernote integration is not configured for this installation.')
+        return res.redirect('/import')
+    }
+
     var client = new Evernote.Client({
-        consumerKey: config.evernote.API_CONSUMER_KEY,
-        consumerSecret: config.evernote.API_CONSUMER_SECRET,
-        sandbox: config.evernote.SANDBOX,
+        consumerKey: evernoteConsumerKey,
+        consumerSecret: evernoteConsumerSecret,
+        sandbox: evernoteSandbox,
     })
 
     client.getAccessToken(

@@ -1,7 +1,11 @@
 var validate = require('../lib/middleware/validate')
 var entries = require('../routes/entries')
 var options = require('../options')
-var config = require('../config.json')
+var configLoader = require('../lib/config')
+var configData = configLoader.data || {}
+var googleConfig = Object.assign({}, configData.google || {})
+var googleSearchUrl = process.env.GOOGLE_SEARCH_URL || googleConfig.URL_search || ''
+var googleApiKey = process.env.GOOGLE_API_KEY || googleConfig.API_key || ''
 const https = require('https');
 
 var max_length = options.settings.max_text_length
@@ -170,7 +174,13 @@ exports.submitGoogle = function(req, res, next) {
                 }
 
 
-                let google_request_link = config.google.URL_search + config.google.API_key + '&q=' + searchString.toLowerCase();
+                if (!googleSearchUrl || !googleApiKey) {
+                    res.error('Google integration is not configured for this installation.')
+                    return res.redirect('back')
+                }
+
+                let google_request_link =
+                    googleSearchUrl + googleApiKey + '&q=' + searchString.toLowerCase()
 
                 https.get(google_request_link, (resp) => {
 
