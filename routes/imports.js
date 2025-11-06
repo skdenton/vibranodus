@@ -42,6 +42,18 @@ const { simpleParser } = require('mailparser')
 
 const puppeteer = require('puppeteer')
 
+const puppeteerLaunchOptions = (() => {
+    const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH
+    const options = {}
+
+    if (executablePath) {
+        options.executablePath = executablePath
+        options.args = ['--no-sandbox', '--disable-setuid-sandbox']
+    }
+
+    return options
+})()
+
 var axios = require('axios')
 var cheerio = require('cheerio')
 
@@ -1194,7 +1206,7 @@ exports.submit = function(req, res, next) {
         })
 
         async function submitRelations(req, res, searchQuery) {
-            const browser = await puppeteer.launch();
+            const browser = await puppeteer.launch(puppeteerLaunchOptions);
             const page = await browser.newPage();
             await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.89 Safari/537.1');
             await page.goto('http://www.google.com/ncr');
