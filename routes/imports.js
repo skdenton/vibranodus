@@ -28,7 +28,10 @@ var Evernote = require('evernote')
 
 var S = require('string')
 
-var config = require('../config.json')
+var configLoader = require('../lib/config')
+var configData = configLoader.data || {}
+var twitterConfig = Object.assign({}, configData.twitter || {})
+var evernoteConfig = Object.assign({ SANDBOX: true }, configData.evernote || {})
 
 var Imap = require('imap'),
     inspect = require('util').inspect
@@ -100,12 +103,31 @@ const lemmerRus = new Morphy('ru', {
 //var cheerio = require('cheerio'); // for content extraction  from html pages
 //var validator = require('validator'); // to validate encodings, emails, numbers
 
-var T = new Twit({
-    consumer_key: config.twitter.consumer_key,
-    consumer_secret: config.twitter.consumer_secret,
-    access_token: config.twitter.access_token,
-    access_token_secret: config.twitter.access_token_secret,
+var twitterCredentials = {
+    consumer_key:
+        process.env.TWITTER_CONSUMER_KEY || twitterConfig.consumer_key || '',
+    consumer_secret:
+        process.env.TWITTER_CONSUMER_SECRET || twitterConfig.consumer_secret || '',
+    access_token:
+        process.env.TWITTER_ACCESS_TOKEN || twitterConfig.access_token || '',
+    access_token_secret:
+        process.env.TWITTER_ACCESS_TOKEN_SECRET ||
+        twitterConfig.access_token_secret || '',
+}
+
+var hasTwitterCredentials = Object.keys(twitterCredentials).every(function(key) {
+    return twitterCredentials[key]
 })
+
+var T = null
+
+if (hasTwitterCredentials) {
+    T = new Twit(twitterCredentials)
+} else {
+    console.warn(
+        'Twitter API credentials are not configured. Twitter import functionality will be disabled.'
+    )
+}
 
 // GET request to the /settings page (view settings)
 
@@ -212,7 +234,7 @@ exports.renderEvernote = function(req, res) {
     if (req.session.oauthAccessToken) {
         var client = new Evernote.Client({
             token: req.session.oauthAccessToken,
-            sandbox: config.evernote.SANDBOX,
+            sandbox: evernoteConfig.SANDBOX,
         })
 
         var noteStore = client.getNoteStore()
@@ -396,6 +418,10 @@ exports.submit = function(req, res, next) {
     console.log(twitterRequest)
 
     if (searchString && service == 'twitter') {
+        if (!T) {
+            res.error('Twitter integration is not configured for this server.')
+            return res.redirect('back')
+        }
         // Finding tweets of the @user
         if (twitterRequest.type == 'friends/ids') {
             var tweets = []
@@ -735,7 +761,7 @@ exports.submit = function(req, res, next) {
 
         var client = new Evernote.Client({
             token: req.session.oauthAccessToken,
-            sandbox: config.evernote.SANDBOX,
+            sandbox: evernoteConfig.SANDBOX,
         })
 
         console.log(req.session.oauthAccessToken)

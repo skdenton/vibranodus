@@ -25,7 +25,12 @@ var validate = require('../lib/middleware/validate')
 
 var bcrypt = require('bcrypt')
 
-var config = require('../config.json')
+var configLoader = require('../lib/config')
+var configData = configLoader.data || {}
+var config = Object.assign({}, configData)
+config.mailOptions = Object.assign({}, configData.mailOptions || {})
+config.smtpOptions = configData.smtpOptions
+config.infranodus = Object.assign({}, configData.infranodus || {})
 
 const nodemailer = require('nodemailer')
 
@@ -209,22 +214,33 @@ exports.generatehash = function(req, res, next) {
                 )
             ) {
                 console.log('starting mailer')
-                const transporter = nodemailer.createTransport(
-                    config.smtpOptions
-                )
+                const smtpOptions = config.smtpOptions
+                if (!smtpOptions || Object.keys(smtpOptions).length === 0) {
+                    console.warn(
+                        'SMTP configuration is missing. Unable to send password recovery email.'
+                    )
+                    return res.send({
+                        errormsg:
+                            'Password recovery email is not configured for this installation.',
+                    })
+                }
 
-                config.mailOptions.to = user.portal
-                config.mailOptions.subject =
+                const transporter = nodemailer.createTransport(smtpOptions)
+                const mailOptions = Object.assign({}, config.mailOptions)
+                const domain = config.infranodus.domain || options.domain
+
+                mailOptions.to = user.portal
+                mailOptions.subject =
                     'Password Recovery Link for InfraNodus.Com'
-                config.mailOptions.text =
+                mailOptions.text =
                     "Hello, \n\nWe have received a request to reset your password. \n\nIf you haven't made this request, please, ignore this message. If you did, please, click the link below to create a new password. \n\n Your username: " +
                     user.substance +
                     '\n\nYour password reset link: http://' +
-                    config.infranodus.domain +
+                    domain +
                     resetLink +
                     '\n\nThank you,\n\nInfraNodus Bot'
 
-                transporter.sendMail(config.mailOptions, function(err, ress) {
+                transporter.sendMail(mailOptions, function(err, ress) {
                     if (err) {
                         console.log('there was an error: ', err)
                         res.send({
