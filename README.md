@@ -103,10 +103,27 @@ Check out the `config.json.sample` file and edit it to add your own Evernote and
 Then rename it to `config.json`.
 Create `statsabove.ejs`, `statsbelow.ejs` and `statsheader.ejs` files in the `/views` folder.
 
-Run the application with 
-`node app.js` 
+Run the application with
+`node app.js`
 
 You can access the app from http://localhost:3000
+
+### Run with Docker Compose
+
+The repository includes a `docker-compose.yml` that provisions both the application and a Neo4j database.
+
+1. Copy the sample configuration if you need to customize API credentials: `cp config.json.sample config.json`.
+2. Provide Neo4j connection details via environment variables. You can place them in a `.env` file that sits alongside the compose file:
+
+   ```
+   NEO4J_URI=bolt://neo4j:7687
+   NEO4J_USERNAME=neo4j
+   NEO4J_PASSWORD=secure-password
+   ```
+
+3. Start the stack with `docker compose up --build`.
+
+The compose file exposes the web application on http://localhost:3000 and Neo4j on ports 7474 (HTTP) and 7687 (Bolt). Neo4j data and plugin directories are persisted to named Docker volumes by default. If you want to keep configuration files such as `config.json` outside of the container image, uncomment the `config.json` bind mount in `docker-compose.yml` or add your own volume definitions before starting the services.
 
 To create an account on your local machine, visit http://localhost:3000/signup?invitation=secretcode - replace `secretcode` with the value of `secrets.invitation` in your `config.json`. 
 
