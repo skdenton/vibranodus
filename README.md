@@ -86,62 +86,25 @@ InfraNodus is built on
 
 
 ##
-## Installation Guide
+## Deployment Options
 
-To use this software you should install Neo4J 3.3.9 on your local computer (up to 3.5 is supported).
-To install Neo4J on a Mac use homebrew (see [Neo4J instructions here](http://www.neo4j.org/download)) or you can also set up a cloud Neo4J instance on AWS or their own cloud service.
-For settings, check out [How to Set Up Neo4J for InfraNodus](https://github.com/noduslabs/infranodus/wiki/Neo4J-Database-Setup).
-You may also find [other wiki pages](https://github.com/noduslabs/infranodus/wiki/_pages) interesting, especially [Neo4J installation guide](https://github.com/noduslabs/infranodus/wiki/Upgrading-Your-Neo4J-Database-from-2.x-to-3.x) – the section on setting up indexes and installing APOC plugin.
+### Docker
 
-Git clone this project into a folder, then you will also need to have npm Node.Js package manager installed on your computer. After you install InfraNodus, run
+**Prerequisites**
 
-`npm install`
+- Docker Engine 24+ or Docker Desktop.
+- Docker Compose V2 (bundled with modern Docker distributions).
+- Optional: a `.env` file in the project root when you want to override default credentials.
 
-in the main folder the project to install all the dependencies into `node_modules` folder.
+**Build the container image**
 
-Check out the `config.json.sample` file and edit it to add your own Evernote and Twitter API credentials.
-Then rename it to `config.json`.
-Create `statsabove.ejs`, `statsbelow.ejs` and `statsheader.ejs` files in the `/views` folder.
+The `docker-compose.yml` builds an application image from the local `Dockerfile`. If you want to build it manually—for example to push it to a registry—run:
 
-### Configuration
+```
+docker build -t vibranodus:local .
+```
 
-InfraNodus reads its runtime configuration from environment variables first and falls back to `config.json` for any values that are not provided. You can point the application at a custom configuration file by setting the `CONFIG_PATH` environment variable to either an absolute path or a path relative to the project root. If no configuration file is found, the server will continue booting with environment defaults.
-
-**Core application secrets**
-
-- `NEO4J_URI` / `NEO4J_BOLT_URI` – Bolt connection string (for example, `bolt://neo4j:7687`).
-- `NEO4J_BOLT_HOST` – Bolt host without the protocol when you prefer to specify host and port separately.
-- `NEO4J_HOST` – Neo4j HTTP host (defaults to `localhost:7474`).
-- `NEO4J_HTTP_URL` – Fully qualified HTTP URL, including credentials if required. Overrides `NEO4J_HOST` and protocol calculation.
-- `NEO4J_HTTP_PROTOCOL` – Protocol used when building the HTTP URL (defaults to `http`).
-- `NEO4J_USERNAME` / `NEO4J_PASSWORD` – Database credentials.
-- `INVITATION_CODE` – Registration invitation code required on `/signup`.
-- `COOKIE_SECRET` – Secret string used to sign session and cookie data.
-- `SITE_DOMAIN` – Domain included in e-mails such as password recovery messages.
-- `DEFAULT_USER` – Username that is used when a request needs to fall back to a default profile.
-
-**Billing and subscription services**
-
-- `CHARGEBEE_SITE`
-- `CHARGEBEE_API_KEY`
-- `CHARGEBEE_REDIRECT_URL`
-
-**Third-party integrations**
-
-- Twitter: `TWITTER_CONSUMER_KEY`, `TWITTER_CONSUMER_SECRET`, `TWITTER_ACCESS_TOKEN`, `TWITTER_ACCESS_TOKEN_SECRET`.
-- Evernote: `EVERNOTE_CONSUMER_KEY`, `EVERNOTE_CONSUMER_SECRET`, `EVERNOTE_CALLBACK_URL`, `EVERNOTE_SANDBOX` (`true`/`false`).
-- Google Custom Search: `GOOGLE_SEARCH_URL`, `GOOGLE_API_KEY`.
-
-Any keys that are not supplied via the environment will continue to use the values defined in `config.json`, preserving compatibility with existing deployments.
-
-Run the application with
-`node app.js`
-
-You can access the app from http://localhost:3000
-
-### Run with Docker Compose
-
-The repository includes a `docker-compose.yml` that provisions both the application and a Neo4j database.
+**Launch the full stack**
 
 1. Copy the sample configuration if you need to customize API credentials: `cp config.json.sample config.json`.
 2. Provide Neo4j connection details via environment variables. You can place them in a `.env` file that sits alongside the compose file:
@@ -150,11 +113,40 @@ The repository includes a `docker-compose.yml` that provisions both the applicat
    NEO4J_URI=bolt://neo4j:7687
    NEO4J_USERNAME=neo4j
    NEO4J_PASSWORD=secure-password
+   INVITATION_CODE=changeme
+   COOKIE_SECRET=super-secret-cookie-key
    ```
 
-3. Start the stack with `docker compose up --build`.
+3. Build and start the services:
 
-The compose file exposes the web application on http://localhost:3000 and Neo4j on ports 7474 (HTTP) and 7687 (Bolt). Neo4j data and plugin directories are persisted to named Docker volumes by default. If you want to keep configuration files such as `config.json` outside of the container image, uncomment the `config.json` bind mount in `docker-compose.yml` or add your own volume definitions before starting the services.
+   ```
+   docker compose up --build
+   ```
+
+The compose file exposes the web application on http://localhost:3000 and Neo4j on ports 7474 (HTTP) and 7687 (Bolt).
+
+**Environment variables and secrets**
+
+InfraNodus reads runtime configuration from environment variables first and falls back to `config.json` for any values that are not provided. The most important variables to supply in Docker deployments are:
+
+- `NEO4J_URI` / `NEO4J_BOLT_URI` – Bolt connection string (defaults to `bolt://neo4j:7687`).
+- `NEO4J_USERNAME` / `NEO4J_PASSWORD` – Database credentials; they are also passed to the Neo4j service through `NEO4J_AUTH`.
+- `INVITATION_CODE` – Invitation code required on `/signup`.
+- `COOKIE_SECRET` – Secret string used to sign session and cookie data.
+- `SITE_DOMAIN`, `DEFAULT_USER` – Optional values that appear in e-mails and default profiles.
+- Third-party credentials such as the Twitter, Evernote, and Google keys defined in `config.json.sample`.
+
+Place them into a `.env` file or export them in the shell before running Compose. Any keys that are not supplied via the environment will continue to use the values defined in `config.json`, preserving compatibility with existing deployments.
+
+**Volumes and persistent data**
+
+- `neo4j_data` – Stores the graph database content under `/data`.
+- `neo4j_plugins` – Persists APOC and any additional Neo4j plugins under `/plugins`.
+- Optional bind mount `./config.json:/usr/src/app/config.json:ro` – Uncomment in `docker-compose.yml` if you want to inject a local configuration file instead of baking it into the image.
+
+Stopping the stack with `docker compose down -v` removes the named volumes. Keep them intact if you want to preserve graph data between runs.
+
+**Neo4j initialization workflow**
 
 During start-up the `neo4j-init` one-shot service waits for the database to accept Bolt connections and then runs the Cypher statements in [`neo4j/init.cypher`](neo4j/init.cypher) through `cypher-shell`. The script enables the APOC triggers required by InfraNodus and creates the recommended indexes using Neo4j 5.x syntax. The Neo4j service loads the APOC plugin automatically via the `NEO4JLABS_PLUGINS` environment variable, so the procedures are ready by the time the init job runs.
 
@@ -166,21 +158,31 @@ docker compose run --rm neo4j-init
 
 The command reuses the same container image and Cypher script, ensuring the schema stays in sync without having to restart the full stack.
 
-To create an account on your local machine, visit http://localhost:3000/signup?invitation=secretcode - replace `secretcode` with the value of `secrets.invitation` in your `config.json`. 
+To create an account on your local machine, visit http://localhost:3000/signup?invitation=secretcode - replace `secretcode` with the value of `secrets.invitation` in your `config.json`.
 
 When you sign up, please, consider creating an account on [www.infranodus.com](http://infranodus.com) to support the development of this tool. Subscribers get fast-track support and help on the technical issues of the installation.
 
-### Run inside a Vagrant Virtual Machine
+### Manual setup
 
-1. `git clone` the project
-2. `cd infranodus` to switch into the git project directory
-3. `cp config.json.sample config.json` and modidy the file as necessary - for example, add Evernote and/or Twitter credentials. Note: if you change the Neo4j database password here, you'll also need to change it in your local copy of `/vagrant/setup-neo4j.sh`.
-4. `vagrant up` in the project folder. This may take a while the first time, as it installs an Ubuntu VM and all dependencies.
-5. `vagrant ssh` to logon to the Virtual Machine
-6. `cd /vagrant` to get into the project directory on the Virtual machine
-7. `node app.js` to run the application
-8. You can access the app from http://192.168.66.101:3000 - if you want a different IP address, change the `ip` setting under `config.vm.network` in the `vagrantfile`.
-9. To create an account on your local machine, visit http://192.168.66.101:3000/signup?invitation=secretcode - replace `secretcode` with the value of `secrets.invitation` in your `config.json`. In this case, please, consider becoming a patron by signing up on [www.infranodus.com](http://infranodus.com) to support the development of this open source tool. Patrons get fast-track support and help on the technical issues of the installation.
+1. Install Neo4j 3.3.9–3.5 locally or provision a managed instance. See [How to Set Up Neo4j for InfraNodus](https://github.com/noduslabs/infranodus/wiki/Neo4J-Database-Setup) for indexes and APOC guidance.
+2. Install Node.js and npm.
+3. `git clone` this repository and `cd` into it.
+4. Install dependencies with `npm install`.
+5. Copy `config.json.sample` to `config.json`, add the required API credentials, and create `statsabove.ejs`, `statsbelow.ejs`, and `statsheader.ejs` inside the `/views` folder.
+6. Export any additional environment variables described above or keep them inside `config.json`.
+7. Start the server with `node app.js` and visit http://localhost:3000.
+
+### Vagrant virtual machine
+
+1. `git clone` the project.
+2. `cd infranodus` to switch into the git project directory.
+3. `cp config.json.sample config.json` and modify the file as necessary—for example, add Evernote and/or Twitter credentials. Note: if you change the Neo4j database password here, you'll also need to change it in your local copy of `/vagrant/setup-neo4j.sh`.
+4. Run `vagrant up` in the project folder. This may take a while the first time, as it installs an Ubuntu VM and all dependencies.
+5. `vagrant ssh` to log on to the virtual machine.
+6. `cd /vagrant` to get into the project directory on the virtual machine.
+7. `node app.js` to run the application.
+8. Access the app from http://192.168.66.101:3000. If you want a different IP address, change the `ip` setting under `config.vm.network` in the `Vagrantfile`.
+9. Visit http://192.168.66.101:3000/signup?invitation=secretcode to create an account—replace `secretcode` with the value of `secrets.invitation` in your `config.json`.
 
 
 ##
