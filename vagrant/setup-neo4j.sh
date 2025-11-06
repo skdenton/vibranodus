@@ -13,6 +13,16 @@ sleep 15s   # Wait 15s to let the neo4j service restart!
 # (default is 'neo4j', but needs changing before schema changes can be made!)
 echo "CALL dbms.changePassword('$NEW_PASSWORD');" | cypher-shell -u $DEFAULT_USERNAME -p $DEFAULT_PASSWORD
 
+INIT_SCRIPT="/vagrant/neo4j/init.cypher"
+
+if [ -f "$INIT_SCRIPT" ]; then
+  echo "Running Neo4j initialization script located at $INIT_SCRIPT"
+  if cypher-shell -u $DEFAULT_USERNAME -p $NEW_PASSWORD -f "$INIT_SCRIPT"; then
+    exit 0
+  fi
+  echo "Initialization script failed, falling back to legacy inline commands"
+fi
+
 # Setup indicies as per https://github.com/noduslabs/infranodus/wiki/Neo4J-Database-Setup
 INDICIES="
   CREATE INDEX ON :User(name);
