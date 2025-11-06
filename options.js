@@ -1,6 +1,11 @@
 var fs = require('fs')
 
 var configPath = './config.json'
+var DEFAULT_HTTP_PORT = 7474
+var DEFAULT_HTTP_HOST = 'localhost:' + DEFAULT_HTTP_PORT
+var DEFAULT_BOLT_URI = 'bolt://localhost'
+var DEFAULT_USERNAME = 'neo4j'
+var DEFAULT_PASSWORD = 'neo4j'
 
 // General program-wide settings
 
@@ -63,24 +68,37 @@ exports.defaultstatements = {
 }
 */
 
+var neo4jHttpHost = DEFAULT_HTTP_HOST
+var neo4jBoltUri = DEFAULT_BOLT_URI
+var neo4jUsername = DEFAULT_USERNAME
+var neo4jPassword = DEFAULT_PASSWORD
+
 // Config file exists?
 
 if (fs.existsSync(configPath)) {
     var parsed = JSON.parse(fs.readFileSync(configPath, 'UTF-8'))
 
-    // Create Neo4J access URL
-    exports.neo4jlink =
-        'http://' +
-        parsed['neo4j']['username'] +
-        ':' +
-        parsed['neo4j']['password'] +
-        '@' +
-        parsed['neo4j']['host']
+    if (parsed['neo4j']) {
+        if (parsed['neo4j']['host']) {
+            neo4jHttpHost = parsed['neo4j']['host'].replace(/^https?:\/\//, '')
+        }
 
-    exports.neo4jhost = 'bolt://' + parsed['neo4j']['bolt']
+        if (parsed['neo4j']['bolt']) {
+            if (parsed['neo4j']['bolt'].startsWith('bolt://')) {
+                neo4jBoltUri = parsed['neo4j']['bolt']
+            } else {
+                neo4jBoltUri = 'bolt://' + parsed['neo4j']['bolt']
+            }
+        }
 
-    exports.neo4juser = parsed['neo4j']['username']
-    exports.neo4jpass = parsed['neo4j']['password']
+        if (parsed['neo4j']['username']) {
+            neo4jUsername = parsed['neo4j']['username']
+        }
+
+        if (parsed['neo4j']['password']) {
+            neo4jPassword = parsed['neo4j']['password']
+        }
+    }
 
     exports.invite = parsed['secrets']['invitation']
     exports.cookie_secret = parsed['secrets']['cookie_secret']
@@ -97,10 +115,61 @@ if (fs.existsSync(configPath)) {
 } else {
     console.log("Neo4J config file doesn't exist. Using default settings.")
 
-    exports.neo4jlink = 'http://localhost:7474'
-
     exports.invite = ''
 }
+
+// Environment overrides
+if (process.env.NEO4J_USERNAME || process.env.NEO4J_USER) {
+    neo4jUsername = process.env.NEO4J_USERNAME || process.env.NEO4J_USER
+}
+
+if (process.env.NEO4J_PASSWORD || process.env.NEO4J_PASS) {
+    neo4jPassword = process.env.NEO4J_PASSWORD || process.env.NEO4J_PASS
+}
+
+var envHttpHost = process.env.NEO4J_HTTP_HOST
+var envHttpUri = process.env.NEO4J_HTTP_URI || process.env.NEO4J_BROWSER_URL
+var envBoltUri = process.env.NEO4J_URI || process.env.NEO4J_BOLT_URI
+
+if (envBoltUri) {
+    neo4jBoltUri = envBoltUri
+
+    if (!envHttpHost && !envHttpUri) {
+        try {
+            var boltUrl = new URL(envBoltUri)
+            if (boltUrl.hostname) {
+                var httpPort = process.env.NEO4J_HTTP_PORT || DEFAULT_HTTP_PORT
+                neo4jHttpHost = boltUrl.hostname + ':' + httpPort
+            }
+        } catch (err) {
+            // Ignore malformed URLs; fall back to previous host value
+        }
+    }
+}
+
+if (envHttpUri) {
+    try {
+        neo4jHttpHost = new URL(envHttpUri).host
+    } catch (err) {
+        neo4jHttpHost = envHttpUri.replace(/^https?:\/\//, '')
+    }
+}
+
+if (envHttpHost) {
+    neo4jHttpHost = envHttpHost
+}
+
+exports.neo4jlink =
+    'http://' +
+    neo4jUsername +
+    ':' +
+    neo4jPassword +
+    '@' +
+    neo4jHttpHost
+
+exports.neo4jhost = neo4jBoltUri
+exports.neo4juser = neo4jUsername
+exports.neo4jpass = neo4jPassword
 
 // Get a list of stopwords for English
 
