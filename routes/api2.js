@@ -122,14 +122,15 @@ exports.nodes = function(req, res, next) {
 
             // Change the result we obtained into a nice json we need
 
-        if (req.query.gexf) {
-            res.render('entries/nodes', { graph: graph })
-        } else {
-            res.format({
-                json: function() {
-                    res.send(graph)
-                },
-            })
+            if (req.query.gexf) {
+                res.render('entries/nodes', { graph: graph })
+            } else {
+                res.format({
+                    json: function() {
+                        res.send(graph)
+                    },
+                })
+            }
         }
     )
 }
