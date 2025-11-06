@@ -29,7 +29,7 @@ exports.submit = function(req, res, next) {
             return next(err)
         }
         if (!user) {
-            req.session.uid = user.uid
+            delete req.session.uid
 
             // req.session.messages =  [info.message];
             res.error('Wrong username / password pair. Please, try again.')
