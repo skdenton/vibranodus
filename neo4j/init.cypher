@@ -10,47 +10,32 @@ CREATE INDEX context_by_index IF NOT EXISTS FOR (ctx:Context) ON (ctx.by);
 CREATE INDEX statement_name_index IF NOT EXISTS FOR (s:Statement) ON (s.name);
 CREATE INDEX statement_uid_index IF NOT EXISTS FOR (s:Statement) ON (s.uid);
 
-// Reset existing triggers so the script is idempotent
-CALL apoc.trigger.remove('RELATIONSHIP_INDEX');
-CALL apoc.trigger.remove('RELATIONSHIP_INDEX_REMOVE_TO');
-CALL apoc.trigger.remove('RELATIONSHIP_INDEX_REMOVE_AT');
-CALL apoc.trigger.remove('RELATIONSHIP_INDEX_REMOVE_BY');
-CALL apoc.trigger.remove('RELATIONSHIP_INDEX_REMOVE_OF');
-CALL apoc.trigger.remove('RELATIONSHIP_INDEX_REMOVE_IN');
+// Relationship property indexes
+CREATE INDEX to_context IF NOT EXISTS FOR ()-[r:TO]-() ON (r.context);
+CREATE INDEX to_statement IF NOT EXISTS FOR ()-[r:TO]-() ON (r.statement);
+CREATE INDEX to_user IF NOT EXISTS FOR ()-[r:TO]-() ON (r.user);
+CREATE INDEX at_context IF NOT EXISTS FOR ()-[r:AT]-() ON (r.context);
+CREATE INDEX at_statement IF NOT EXISTS FOR ()-[r:AT]-() ON (r.statement);
+CREATE INDEX at_user IF NOT EXISTS FOR ()-[r:AT]-() ON (r.user);
+CREATE INDEX by_context IF NOT EXISTS FOR ()-[r:BY]-() ON (r.context);
+CREATE INDEX by_statement IF NOT EXISTS FOR ()-[r:BY]-() ON (r.statement);
+CREATE INDEX by_user IF NOT EXISTS FOR ()-[r:BY]-() ON (r.user);
+CREATE INDEX of_context IF NOT EXISTS FOR ()-[r:OF]-() ON (r.context);
+CREATE INDEX of_user IF NOT EXISTS FOR ()-[r:OF]-() ON (r.user);
+CREATE INDEX in_context IF NOT EXISTS FOR ()-[r:IN]-() ON (r.context);
+CREATE INDEX in_user IF NOT EXISTS FOR ()-[r:IN]-() ON (r.user);
 
-// Recreate triggers
-CALL apoc.trigger.add(
-  'RELATIONSHIP_INDEX',
-  'UNWIND $createdRelationships AS r MATCH ()-[r]->() CALL apoc.index.addRelationship(r,["user","context","statement","gapscan"]) RETURN count(*)',
-  {phase: 'after'}
-);
-
-CALL apoc.trigger.add(
-  'RELATIONSHIP_INDEX_REMOVE_TO',
-  'UNWIND $deletedRelationships AS r MATCH ()-[r:TO]->() CALL apoc.index.removeRelationshipByName("TO", r) RETURN count(*)',
-  {phase: 'after'}
-);
-
-CALL apoc.trigger.add(
-  'RELATIONSHIP_INDEX_REMOVE_AT',
-  'UNWIND $deletedRelationships AS r MATCH ()-[r:AT]->() CALL apoc.index.removeRelationshipByName("AT", r) RETURN count(*)',
-  {phase: 'after'}
-);
-
-CALL apoc.trigger.add(
-  'RELATIONSHIP_INDEX_REMOVE_BY',
-  'UNWIND $deletedRelationships AS r MATCH ()-[r:BY]->() CALL apoc.index.removeRelationshipByName("BY", r) RETURN count(*)',
-  {phase: 'after'}
-);
-
-CALL apoc.trigger.add(
-  'RELATIONSHIP_INDEX_REMOVE_OF',
-  'UNWIND $deletedRelationships AS r MATCH ()-[r:OF]->() CALL apoc.index.removeRelationshipByName("OF", r) RETURN count(*)',
-  {phase: 'after'}
-);
-
-CALL apoc.trigger.add(
-  'RELATIONSHIP_INDEX_REMOVE_IN',
-  'UNWIND $deletedRelationships AS r MATCH ()-[r:IN]->() CALL apoc.index.removeRelationshipByName("IN", r) RETURN count(*)',
-  {phase: 'after'}
-);
+// Relationship fulltext indexes
+CREATE FULLTEXT INDEX to_context_fulltext IF NOT EXISTS FOR ()-[r:TO]-() ON EACH [r.context];
+CREATE FULLTEXT INDEX to_statement_fulltext IF NOT EXISTS FOR ()-[r:TO]-() ON EACH [r.statement];
+CREATE FULLTEXT INDEX to_user_fulltext IF NOT EXISTS FOR ()-[r:TO]-() ON EACH [r.user];
+CREATE FULLTEXT INDEX at_context_fulltext IF NOT EXISTS FOR ()-[r:AT]-() ON EACH [r.context];
+CREATE FULLTEXT INDEX at_statement_fulltext IF NOT EXISTS FOR ()-[r:AT]-() ON EACH [r.statement];
+CREATE FULLTEXT INDEX at_user_fulltext IF NOT EXISTS FOR ()-[r:AT]-() ON EACH [r.user];
+CREATE FULLTEXT INDEX by_context_fulltext IF NOT EXISTS FOR ()-[r:BY]-() ON EACH [r.context];
+CREATE FULLTEXT INDEX by_statement_fulltext IF NOT EXISTS FOR ()-[r:BY]-() ON EACH [r.statement];
+CREATE FULLTEXT INDEX by_user_fulltext IF NOT EXISTS FOR ()-[r:BY]-() ON EACH [r.user];
+CREATE FULLTEXT INDEX of_context_fulltext IF NOT EXISTS FOR ()-[r:OF]-() ON EACH [r.context];
+CREATE FULLTEXT INDEX of_user_fulltext IF NOT EXISTS FOR ()-[r:OF]-() ON EACH [r.user];
+CREATE FULLTEXT INDEX in_context_fulltext IF NOT EXISTS FOR ()-[r:IN]-() ON EACH [r.context];
+CREATE FULLTEXT INDEX in_user_fulltext IF NOT EXISTS FOR ()-[r:IN]-() ON EACH [r.user];
