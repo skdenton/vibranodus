@@ -2531,7 +2531,29 @@ exports.submit = function(req, res, next) {
 
                                         // Minus 2 seconds + 2 seconds — propose to watch that fragment of video
                                     }
-                                    fs.unlink(files[0])
+
+                                    var subtitlePath = files[0]
+
+                                    if (subtitlePath) {
+                                        var resolvedPath = path.resolve(subtitlePath)
+
+                                        fs.promises
+                                            .unlink(resolvedPath)
+                                            .catch(function(err) {
+                                                if (err && err.code === 'ENOENT') {
+                                                    console.warn(
+                                                        'Subtitle file already removed:',
+                                                        resolvedPath
+                                                    )
+                                                } else if (err) {
+                                                    console.error(
+                                                        'Failed to remove subtitle file %s: %s',
+                                                        resolvedPath,
+                                                        err.message
+                                                    )
+                                                }
+                                            })
+                                    }
                                 })
 
                                 // if files[0]
