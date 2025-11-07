@@ -72,6 +72,20 @@ function envOr(name, fallback) {
     return process.env[name] !== undefined ? process.env[name] : fallback
 }
 
+function envFlag(name, fallback) {
+    var value = process.env[name]
+
+    if (value === undefined) {
+        return !!fallback
+    }
+
+    if (typeof value === 'string') {
+        return /^(1|true|yes|on)$/i.test(value)
+    }
+
+    return !!value
+}
+
 function buildHttpLink(protocol, host, user, pass) {
     if (!host) {
         return ''
@@ -89,6 +103,12 @@ function buildHttpLink(protocol, host, user, pass) {
 var neo4jConfig = parsed.neo4j || {}
 var secretsConfig = parsed.secrets || {}
 var infranodusConfig = parsed.infranodus || {}
+
+var autoLoginFallback =
+    infranodusConfig.auto_login !== undefined
+        ? !!infranodusConfig.auto_login
+        : false
+var autoLogin = envFlag('INFRANODUS_AUTO_LOGIN', autoLoginFallback)
 
 var neo4jUser = envOr(
     'NEO4J_USERNAME',
@@ -139,7 +159,15 @@ exports.cookie_secret = envOr(
 )
 
 exports.domain = envOr('SITE_DOMAIN', infranodusConfig.domain || 'localhost:3000')
-exports.default_user = envOr('DEFAULT_USER', infranodusConfig.default_user || '')
+
+var defaultUser = envOr('DEFAULT_USER', infranodusConfig.default_user || '')
+
+if (!defaultUser && autoLogin) {
+    defaultUser = 'local-demo'
+}
+
+exports.default_user = defaultUser
+exports.auto_login = autoLogin
 
 exports.chargebee = Object.assign({}, parsed.chargebee || {})
 exports.chargebee.site = envOr(

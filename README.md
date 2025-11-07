@@ -133,10 +133,14 @@ InfraNodus reads runtime configuration from environment variables first and fall
 - `NEO4J_USERNAME` / `NEO4J_PASSWORD` – Database credentials; they are also passed to the Neo4j service through `NEO4J_AUTH`.
 - `INVITATION_CODE` – Invitation code required on `/signup`.
 - `COOKIE_SECRET` – Secret string used to sign session and cookie data.
-- `SITE_DOMAIN`, `DEFAULT_USER` – Optional values that appear in e-mails and default profiles.
+- `INFRANODUS_AUTO_LOGIN` – Enables the bypass middleware so local stacks can skip the login page (enabled by default in `docker-compose.yml`).
+- `DEFAULT_USER` – Username used for the automatic login flow (the compose file defaults it to `local-demo`).
+- `SITE_DOMAIN` – Optional value that appears in e-mails and default profiles.
 - Third-party credentials such as the Twitter, Evernote, and Google keys defined in `config.json.sample`.
 
 Place them into a `.env` file or export them in the shell before running Compose. Any keys that are not supplied via the environment will continue to use the values defined in `config.json`, preserving compatibility with existing deployments.
+
+The default Compose configuration ships with `INFRANODUS_AUTO_LOGIN=1` and `DEFAULT_USER=local-demo`, so the application boots into a pre-authenticated session for local development. Adjust or remove these variables if you prefer to exercise the standard login and signup flows.
 
 **Volumes and persistent data**
 
