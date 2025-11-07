@@ -13,7 +13,11 @@ RUN apk add --no-cache \
     ca-certificates \
     ttf-freefont \
     libstdc++ \
-    libc6-compat
+    libc6-compat \
+    python3 \
+    py3-pip
+
+RUN ln -sf /usr/bin/python3 /usr/bin/python
 
 COPY package*.json ./
 
