@@ -125,6 +125,10 @@ docker build -t vibranodus:local .
 
 The compose file exposes the web application on http://localhost:3000 and Neo4j on ports 7474 (HTTP) and 7687 (Bolt).
 
+**Troubleshooting**
+
+Some Docker Desktop installations may show a BuildKit error such as `failed to prepare extraction snapshot ... parent snapshot ... does not exist` the first time you attempt to build the images after Docker's auto-login update. When this happens, clean the builder cache with `docker buildx prune -af` (or `docker builder prune -af`) and rebuild the services with `docker compose build --no-cache` before retrying `docker compose up`. You might need to repeat this workaround whenever the error reappears on Windows or macOS Docker Desktop setups.
+
 **Environment variables and secrets**
 
 InfraNodus reads runtime configuration from environment variables first and falls back to `config.json` for any values that are not provided. The most important variables to supply in Docker deployments are:
