@@ -2283,15 +2283,17 @@ exports.submit = function(req, res, next) {
                 get_subtitles(ytoptions)
 
                 function downloadSubs(url, opts, cb) {
-                    const tmpFile = path.join(
-                        os.tmpdir(),
-                        `subs-${Date.now()}.vtt`
-                    )
+                    const tmpDir = os.tmpdir()
+                    const randomSuffix = Math.random()
+                        .toString(16)
+                        .slice(2)
+                    const filePrefix = `subs-${Date.now()}-${randomSuffix}`
+                    const outputBase = path.join(tmpDir, filePrefix)
                     const execOpts = {
                         skipDownload: true,
                         subLang: opts.lang,
                         subFormat: 'vtt',
-                        output: tmpFile,
+                        output: outputBase,
                     }
                     if (opts.auto) {
                         execOpts.writeAutoSub = true
@@ -2299,17 +2301,50 @@ exports.submit = function(req, res, next) {
                         execOpts.writeSub = true
                     }
                     youtubedl(url, execOpts)
-                        .then(() => cb(null, [tmpFile]))
-                        .catch(cb)
+                        .then(function() {
+                            return fs.promises.readdir(tmpDir)
+                        })
+                        .then(function(files) {
+                            const baseName = path.basename(outputBase)
+                            const matches = files.filter(function(file) {
+                                return (
+                                    file.startsWith(baseName) &&
+                                    file.endsWith('.vtt')
+                                )
+                            })
+
+                            if (!matches.length) {
+                                const error = new Error(
+                                    'No subtitle file was downloaded.'
+                                )
+                                error.code = 'SUBTITLE_NOT_FOUND'
+                                throw error
+                            }
+
+                            const resolvedFiles = matches.map(function(file) {
+                                return path.join(tmpDir, file)
+                            })
+
+                            cb(null, resolvedFiles)
+                        })
+                        .catch(function(error) {
+                            cb(error)
+                        })
                 }
 
                 function get_subtitles(ytoptions) {
                     downloadSubs(url, ytoptions, function(err, files) {
                         if (err) {
                             console.log(err)
-                            res.error(
-                                'Could not read the video file from the link. We only accept YouTube links like https://www.youtube.com/watch?v=-qgkB0XD4bM or http://youtu.be/-qgkB0XD4bM'
-                            )
+                            if (err.code === 'SUBTITLE_NOT_FOUND') {
+                                res.error(
+                                    'Could not locate the downloaded subtitle file. Please verify that subtitles are available for the requested language.'
+                                )
+                            } else {
+                                res.error(
+                                    'Could not read the video file from the link. We only accept YouTube links like https://www.youtube.com/watch?v=-qgkB0XD4bM or http://youtu.be/-qgkB0XD4bM'
+                                )
+                            }
                             res.redirect('back')
                         } else {
                             console.log('subtitle files downloaded:', files)
