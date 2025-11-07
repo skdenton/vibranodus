@@ -15,7 +15,7 @@
 </head>
 <body>
 
-<% include statsabove %>
+<%- include('statsabove') %>
 
 <div id="layout">
     <!-- Menu toggle -->
@@ -31,7 +31,7 @@
               <p class="large-caption">Please, enter your username or your email to recover your password.</p>
                 <p class="medium-caption">If you have several accounts with the same e-mail, you will need to enter both your username and the email. Usernames are case-sensitive.</p>
 
-              <% include messages %>
+              <%- include('messages') %>
 
               <div class="warning" id="errors"></div>
 
@@ -248,7 +248,7 @@
 
 </script>
 
-<% include statsbelow %>
+<%- include('statsbelow') %>
 
 </body>
 </html>

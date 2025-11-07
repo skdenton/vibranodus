@@ -8,12 +8,12 @@
     <link rel="stylesheet" href="/stylesheets/side-menu.css">
     <script src="/javascripts/jquery.min.js"></script>
 
-    <% include statsheader %>
+    <%- include('statsheader') %>
 
 </head>
 <body>
 
-<% include statsabove %>
+<%- include('statsabove') %>
 
 <div id="layout">
     <!-- Menu toggle -->
@@ -144,7 +144,7 @@
 
 
 
-<% include statsbelow %>
+<%- include('statsbelow') %>
 
 </body>
 </html>

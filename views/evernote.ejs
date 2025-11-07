@@ -12,10 +12,10 @@
     <script src="/javascripts/underscore-min.js"></script>
 
 
-    <% include statsheader %>
+    <%- include('statsheader') %>
 </head>
 <body>
-<% include statsabove %>
+<%- include('statsabove') %>
 <div id="layout">
     <!-- Menu toggle -->
     <a href="#menu" id="menuLink" class="menu-link">
@@ -34,7 +34,7 @@
 
             Visualize your Evernote notes as a graph, to make sense of them and to develop new ideas.<br>
 
-            <% include messages %>
+            <%- include('messages') %>
 
             <form action='/import' name='submitform' id="submitform" method='post' class='pure-form pure-form-stacked'>
                 <br>
@@ -201,6 +201,6 @@
 
 
 
-<% include statsbelow %>
+<%- include('statsbelow') %>
 </body>
 </html>
