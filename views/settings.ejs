@@ -10,12 +10,12 @@
     <link rel="stylesheet" href="/stylesheets/side-menu.css">
     <link rel="stylesheet" href="/stylesheets/jquery-ui.min.css">
     <script src="https://js.chargebee.com/v2/chargebee.js" data-cb-site="infranodus"></script>
-    <% include statsheader %>
+    <%- include('statsheader') %>
 
 </head>
 <body>
 
-<% include statsabove %>
+<%- include('statsabove') %>
 
 <div id="layout">
     <!-- Menu toggle -->
@@ -32,7 +32,7 @@
             <div id="settingsmain">
 
 
-                <% include messages %>
+                <%- include('messages') %>
                 <% console.log(user) %>
                 <form action='/settings' method='post' id="settingsform" class="pure-form pure-form-stacked">
 
@@ -499,7 +499,7 @@ $('#addcontextinput').submit(function(e) {
 </script>
 
 
-<% include statsbelow %>
+<%- include('statsbelow') %>
 
 </body>
 </html>

@@ -14,12 +14,12 @@
     <script src="/javascripts/ui.js"></script>
     <script src="https://js.chargebee.com/v2/chargebee.js" data-cb-site="infranodus"></script>
 
-    <% include statsheader %>
+    <%- include('statsheader') %>
 
 </head>
 <body>
 
-<% include statsabove %>
+<%- include('statsabove') %>
 
 <div id="layout">
     <!-- Menu toggle -->
@@ -31,7 +31,7 @@
           <div id="content">
                 <div id="welcomemessage" style="background: white;">
                     <p class="large-caption">Please, log in below or <a href="/signup">sign up</a> for a new account to start using InfraNodus. </p>
-                    <% include messages %>
+                    <%- include('messages') %>
                     <form action='/login' method='post' class="pure-form pure-form-stacked">
                             <p>
                             <input type='text' name='username' id="username" placeholder='username' />
@@ -205,7 +205,7 @@
 
 
 
-<% include statsbelow %>
+<%- include('statsbelow') %>
 
 </body>
 </html>

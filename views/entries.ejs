@@ -14,7 +14,7 @@
 
 <body>
 <!-- JS Statistics that should load before everything else -->
-<% include statsabove %>
+<%- include('statsabove') %>
 
 <div id="wrapper">
 <div id="layout">
@@ -150,7 +150,7 @@
 <%- include('components/entries/Binders') %>
 
 <!-- JS statistics code that should load in the end -->
-<% include statsbelow %>
+<%- include('statsbelow') %>
 
 </body>
 </html>

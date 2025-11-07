@@ -13,7 +13,7 @@
     <link rel="stylesheet" type="text/css" href="/stylesheets/fullPage.extras.css" />
     <link type="text/css" rel="stylesheet" href="/stylesheets/featherlight.css" title="Featherlight Styles" />
 
-    <% include statsheader %>
+    <%- include('statsheader') %>
 
     <style>
 
@@ -342,7 +342,7 @@
 </head>
 <body>
 
-<% include statsabove %>
+<%- include('statsabove') %>
 
 <div id="content-box">
 <ul id="menu">
@@ -955,6 +955,6 @@
         </div>
     </div>
 </div>
-<% include statsbelow %>
+<%- include('statsbelow') %>
 </body>
 </html>

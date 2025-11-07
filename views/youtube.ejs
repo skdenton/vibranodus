@@ -8,12 +8,12 @@
     <link rel="stylesheet" href="/stylesheets/side-menu.css">
     <link rel="stylesheet" href="/stylesheets/jquery-ui.min.css">
     <link rel='stylesheet' href='/stylesheets/style.css' />
-    <% include statsheader %>
+    <%- include('statsheader') %>
 
 
 </head>
 <body>
-<% include statsabove %>
+<%- include('statsabove') %>
 <div id="layout">
     <!-- Menu toggle -->
     <a href="#menu" id="menuLink" class="menu-link">
@@ -39,7 +39,7 @@
                 Add a YouTube video link above and visualize the subtitles, so you can get a clear idea of what the video is about and find the parts that are important.
 
                 <br>&nbsp;<br>
-                <% include messages %>
+                <%- include('messages') %>
 
                 <label for="extractfilter" class="pure-checkbox">
 
@@ -169,6 +169,6 @@
 
 
 
-<% include statsbelow %>
+<%- include('statsbelow') %>
 </body>
 </html>

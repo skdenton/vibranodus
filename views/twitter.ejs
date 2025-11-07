@@ -8,12 +8,12 @@
     <link rel="stylesheet" href="/stylesheets/side-menu.css">
     <link rel="stylesheet" href="/stylesheets/jquery-ui.min.css">
     <link rel='stylesheet' href='/stylesheets/style.css' />
-    <% include statsheader %>
+    <%- include('statsheader') %>
 
 
 </head>
 <body>
-<% include statsabove %>
+<%- include('statsabove') %>
 <div id="wrapperService">
 <div id="layout">
     <!-- Menu toggle -->
@@ -33,7 +33,7 @@
             <div class="topintro">
             Visualize a network of words used on Twitter by a certain user, with a hashtag or a search term:
             </div>
-            <% include messages %>
+            <%- include('messages') %>
             <br>&nbsp;<br>
             <form action='/import' name='submitform' id="submitform" method='post' class='pure-form pure-form-stacked'>
             <input id="source1" type="hidden" name="source" value="twitter">
@@ -247,6 +247,6 @@
 
 
 
-<% include statsbelow %>
+<%- include('statsbelow') %>
 </body>
 </html>

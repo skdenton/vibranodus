@@ -9,11 +9,11 @@
     <link rel="stylesheet" href="/stylesheets/jquery-ui.min.css">
     <link rel='stylesheet' href='/stylesheets/style.css' />
 
-    <% include statsheader %>
+    <%- include('statsheader') %>
 
 </head>
 <body>
-<% include statsabove %>
+<%- include('statsabove') %>
 <div id="layout">
     <!-- Menu toggle -->
     <a href="#menu" id="menuLink" class="menu-link">
@@ -27,7 +27,7 @@
         <div id='welcomemessage'>
 
             Import any text, PDF, Gexf (Gephi) or CSV file and visualize the text or the relations inside as a graph:
-            <% include messages %>
+            <%- include('messages') %>
 
             <form action='/import' name='submitform' id="submitform" method='post' enctype="multipart/form-data" class='pure-form pure-form-stacked'>
                 <br>
@@ -261,6 +261,6 @@
 
 
 
-<% include statsbelow %>
+<%- include('statsbelow') %>
 </body>
 </html>
