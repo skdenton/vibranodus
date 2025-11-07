@@ -33,6 +33,7 @@ var Entry = require('./lib/entry')
 var page = require('./lib/middleware/page')
 var validate = require('./lib/middleware/validate')
 var user = require('./lib/middleware/user')
+var autologin = require('./lib/middleware/autologin')
 var register = require('./routes/register')
 var login = require('./routes/login')
 var main = require('./routes/main')
@@ -105,6 +106,7 @@ app.use(serveStatic(path.join(__dirname, 'public')));
 
 app.use(passport.initialize())
 app.use(passport.session())
+app.use(autologin)
 
 
 app.get('/', main.render)
@@ -119,11 +121,19 @@ app.use(messages)
 // First we declare all the static paths in the script
 
 
-app.get('/signup', register.form)
+function redirectWhenAutoLogin(req, res, next) {
+    if (options.auto_login) {
+        return res.redirect('/apps')
+    }
+
+    next()
+}
+
+app.get('/signup', redirectWhenAutoLogin, register.form)
 app.get('/recover', register.recover)
 app.post('/recover', register.generatehash)
 app.post('/signup', register.submit)
-app.get('/login', pass.checkLogin, login.form)
+app.get('/login', redirectWhenAutoLogin, pass.checkLogin, login.form)
 app.get('/reset/:user/:timestamp/:hash', register.reset)
 app.post('/reset', register.reset)
 
