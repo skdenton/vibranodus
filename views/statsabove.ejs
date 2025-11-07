@@ -1,0 +1,8 @@
+<% /*
+  Add analytics markup that should appear immediately after the opening <body> tag here.
+  Supply HTML through locals.analytics.above to inject it dynamically, or paste code below.
+  The conditional ensures the page renders even when analytics are disabled.
+*/ %>
+<% if (typeof analytics !== 'undefined' && analytics && analytics.above) { %>
+  <%- analytics.above %>
+<% } %>

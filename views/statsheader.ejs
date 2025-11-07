@@ -1,0 +1,9 @@
+<% /*
+  Optional analytics scripts can be injected into the <head> by editing this partial.
+  Provide a string at locals.analytics.header (e.g., via res.render) to render it dynamically,
+  or paste your tracking snippet below. The guard below keeps the template safe when nothing
+  is configured.
+*/ %>
+<% if (typeof analytics !== 'undefined' && analytics && analytics.header) { %>
+  <%- analytics.header %>
+<% } %>

@@ -168,7 +168,7 @@ When you sign up, please, consider creating an account on [www.infranodus.com](h
 2. Install Node.js and npm.
 3. `git clone` this repository and `cd` into it.
 4. Install dependencies with `npm install`.
-5. Copy `config.json.sample` to `config.json`, add the required API credentials, and create `statsabove.ejs`, `statsbelow.ejs`, and `statsheader.ejs` inside the `/views` folder.
+5. Copy `config.json.sample` to `config.json`, add the required API credentials, and customize the analytics partials in `/views/statsheader.ejs`, `/views/statsabove.ejs`, and `/views/statsbelow.ejs` if you plan to embed tracking scripts.
 6. Export any additional environment variables described above or keep them inside `config.json`.
 7. Start the server with `node app.js` and visit http://localhost:3000.
 

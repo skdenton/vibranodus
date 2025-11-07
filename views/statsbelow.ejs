@@ -1,0 +1,8 @@
+<% /*
+  Place analytics scripts that should load at the end of <body> in this partial.
+  Use locals.analytics.below to render content programmatically, or paste HTML here.
+  When nothing is configured the template stays empty.
+*/ %>
+<% if (typeof analytics !== 'undefined' && analytics && analytics.below) { %>
+  <%- analytics.below %>
+<% } %>
