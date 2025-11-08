@@ -83,7 +83,108 @@ InfraNodus is built on
 * [Textexture](http://textexture.com) algorithm for text network visualization;
 * Open-source code from the people on StackOverflow and Neo4J community;
 
+## Architecture diagrams
 
+### Project folders and key files
+
+```mermaid
+flowchart TB
+    root((vibranodus/))
+    root --> app[app.js]
+    root --> options[options.js]
+    root --> config[config.json.sample]
+    root --> docker[Docker assets]
+    subgraph docker [Containerization]
+        docker --> dockerfile[Dockerfile]
+        docker --> compose[docker-compose.yml]
+        docker --> vagrant[Vagrantfile]
+    end
+    root --> libdir{{lib/}}
+    subgraph libdir [lib/]
+        libdir --> entry[entry.js]
+        libdir --> user[user.js]
+        libdir --> messages[messages.js]
+        libdir --> middleware{{middleware/}}
+        subgraph middleware [middleware/]
+            middleware --> autologin[autologin.js]
+            middleware --> usermw[user.js]
+            middleware --> validate[validate.js]
+            middleware --> page[page.js]
+        end
+        libdir --> db{{db/}}
+        subgraph db [db/]
+            db --> neo4jclient[neo4jClient.js]
+            db --> neo4jcore[neo4j.js]
+        end
+        libdir --> tools{{tools/}}
+    end
+    root --> routesdir{{routes/}}
+    subgraph routesdir [routes/]
+        routesdir --> api[api.js]
+        routesdir --> api2[api2.js]
+        routesdir --> entriesRoute[entries.js]
+        routesdir --> loginRoute[login.js]
+        routesdir --> registerRoute[register.js]
+        routesdir --> settingsRoute[settings.js]
+        routesdir --> importsRoute[imports.js]
+    end
+    root --> publicdir[public/]
+    root --> viewsdir[views/]
+    viewsdir --> entriesView[entries.ejs]
+    viewsdir --> postView[post.ejs]
+    root --> neo4jdir{{neo4j/}}
+    neo4jdir --> initCypher[init.cypher]
+    root --> migration[migration-assistant/]
+```
+
+### Statement submission flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Browser
+    participant Express as Express app.js
+    participant Middleware as Middleware validate.js
+    participant Route as routes/entries.js
+    participant Model as lib/entry.js
+    participant Driver as lib/db/neo4jClient.js
+    participant Database as Neo4j
+
+    User->>Browser: Enter statement text
+    Browser->>Express: POST /post
+    Express->>Middleware: ensureAuthenticated & validate request
+    Middleware-->>Express: Sanitized context & statements
+    Express->>Route: entries.submit(req, res)
+    Route->>Model: new Entry({...}).savetrans()
+    Model->>Driver: CypherQuery.addStatement(...)
+    Driver->>Database: Run transaction
+    Database-->>Driver: Write result
+    Driver-->>Model: Confirmation
+    Model-->>Route: Persisted statement metadata
+    Route-->>Express: Render response context
+    Express-->>Browser: Redirect/render entries view
+    Browser-->>User: Updated graph and statement list
+```
+
+### Module interaction overview
+
+```mermaid
+flowchart LR
+    app[app.js] -->|mounts routes| entriesR[routes/entries.js]
+    app -->|mounts routes| apiR[routes/api.js]
+    app -->|uses middleware| validateMW[lib/middleware/validate.js]
+    app -->|configures| autologinMW[lib/middleware/autologin.js]
+    entriesR -->|renders| entriesView[views/entries.ejs]
+    entriesR -->|creates| entryModel[lib/entry.js]
+    entriesR -->|reads settings| optionsFile[options.js]
+    apiR -->|fetches| entryModel
+    entryModel -->|calls| neo4jClient[lib/db/neo4jClient.js]
+    neo4jClient -->|executes queries| neo4jCore[lib/db/neo4j.js]
+    neo4jCore -->|persists| neo4jDB[(Neo4j database)]
+    validateMW -->|populates locals| entriesR
+    autologinMW -->|modifies session| app
+    entriesView -->|served as| publicAssets[public/]
+```
 
 ##
 ## Deployment Options
