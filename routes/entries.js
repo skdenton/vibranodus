@@ -412,8 +412,6 @@ exports.submit = function(req, res, next) {
                                 // next();
 
                                 // This was some import or multiple statements add feature and we just reload the page with results
-                                neo4jdriver.close();
-
                                 // This is a bit of a workaround, it shows a newly added graph on top of the previous one highlighting the difference
                                 // Happens in case of Google search for example
                                 if (default_context.indexOf('add_') == 0) {
@@ -514,7 +512,6 @@ exports.submit = function(req, res, next) {
 
                                                 // Change the result we obtained into a nice json we need
                                                 // TODO eventually could be several statements sent this way so no need to reload the graph
-                                                neo4jdriver.close()
                                                 res.send({
                                                     entryuid: jsonfirstanswer,
                                                     entryname: entryName,
@@ -530,7 +527,6 @@ exports.submit = function(req, res, next) {
                                     // The statement consists of several statements and we completed all the iterations.
                                     else {
                                         console.log('reached the end')
-                                        neo4jdriver.close()
                                         res.send({
                                             entryuid: 'multiple',
                                             entrycontent: fullstatement,
