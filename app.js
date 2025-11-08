@@ -71,6 +71,8 @@ var imports = require('./routes/imports')
 var importRss = require('./routes/importrss')
 var importGoogle = require('./routes/importgoogle')
 
+var neo4jClient = require('./lib/db/neo4jClient')
+
 
 var app = express()
 
@@ -367,6 +369,40 @@ if (process.env.ERROR_ROUTE) {
 server.listen(app.get('port'), function() {
     console.log('Express server listening on port ' + app.get('port'))
 })
+
+var shuttingDown = false
+
+function handleShutdown(signal) {
+    if (shuttingDown) {
+        return
+    }
+
+    shuttingDown = true
+    console.log('Received ' + signal + ', shutting down gracefully.')
+
+    server.close(function() {
+        console.log('HTTP server closed.')
+
+        neo4jClient
+            .closeDriver()
+            .then(function() {
+                console.log('Neo4j driver closed.')
+                process.exit(0)
+            })
+            .catch(function(err) {
+                console.error('Error closing Neo4j driver', err)
+                process.exit(1)
+            })
+    })
+
+    setTimeout(function() {
+        console.error('Forcing shutdown.')
+        process.exit(1)
+    }, 10000)
+}
+
+process.on('SIGINT', handleShutdown)
+process.on('SIGTERM', handleShutdown)
 
 // could be var chat = to make it recursive
 
